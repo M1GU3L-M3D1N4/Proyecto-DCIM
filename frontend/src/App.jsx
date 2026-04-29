@@ -1,28 +1,37 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";  
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Importamos los componentes de las páginas y el enrutador de React Router todo esto pertence a la libreria react-router-dom
-import Vendors from "./pages/Vendors";    
-import DeviceModels from "./pages/DeviceModels";
-import Sites from "./pages/Sites";
-import Rooms from "./pages/Rooms";
-import Racks from "./pages/Racks";
-// Importamos los componentes de las paginas creadas en la carpeta pages
+
+import Dashboard from "./pages/Dashboard";
+import VendorsList from "./pages/VendorsList";
+import ModelsList from "./pages/ModelsList";
+import SitesList from "./pages/SitesList";
+import RoomsList from "./pages/RoomsList";
+import RacksList from "./pages/RacksList";
+import RackDetail from "./pages/RackDetail";
+import DevicesList from "./pages/DevicesList";
+import DeviceDetail from "./pages/DeviceDetail";
+// Importamos los componentes de las páginas que hemos creado para cada ruta
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Vendors />} /> 
-        <Route path="/models" element={<DeviceModels />} />
-        <Route path="/sites" element={<Sites />} />
-        <Route path="/rooms" element={<Rooms />} />
-        <Route path="/racks" element={<Racks />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/vendors" element={<VendorsList />} />
+        <Route path="/models" element={<ModelsList />} />
+        <Route path="/sites" element={<SitesList />} />
+        <Route path="/rooms" element={<RoomsList />} />
+        <Route path="/racks" element={<RacksList />} />
+        <Route path="/racks/:id" element={<RackDetail />} />
+        <Route path="/devices" element={<DevicesList />} />
+        <Route path="/devices/:id" element={<DeviceDetail />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-// Esta parte del código es la configuración de las rutas de la aplicación. Cada ruta se asocia con un componente que se renderiza cuando el usuario navega a esa ruta específica. 
-// Por ejemplo, cuando el usuario navega a "/models", se renderiza el componente DeviceModels.
-// Finalmente, exportamos el componente App para que pueda ser utilizado en otros archivos de la aplicación.
-// El primer route con path="/" se asocia con el componente Vendors, lo que significa que cuando el usuario navega a la raíz de la aplicación, se renderiza el componente Vendors.
+// Esta funcion define la estructura de rutas de nuestra aplicación utilizando React Router. 
+// Cada ruta está asociada a un componente que se renderiza cuando el usuario navega a esa ruta específica.
+// se importan las rutas de las paginas vendors, models, sites, rooms, racks y devices, ademas de los detalles de racks y devices.
+// se exporta el componente App para que pueda ser utilizado en otros archivos de la aplicación.
