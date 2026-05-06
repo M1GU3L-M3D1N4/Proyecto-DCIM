@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
-// Enlaces principales del sistema. Mantener esta lista aquí hace fácil sumar o quitar secciones
-// sin tocar la estructura visual del componente.
+// Rutas navegables disponibles en el sidebar.
+// Se mantiene aquí como una lista simple para poder agregar o quitar secciones
+// sin necesidad de tocar la estructura visual del componente.
 const navigationItems = [
 	{ to: "/", label: "Dashboard" },
 	{ to: "/sites", label: "Sitios" },

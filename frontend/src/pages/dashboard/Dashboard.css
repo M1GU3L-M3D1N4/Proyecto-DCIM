@@ -81,29 +81,17 @@
   gap: 1rem;
 }
 
-/* Tarjeta individual de estadísticas. */
-.stat-card {
-  padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 1.35rem;
-  background: rgba(19, 34, 56, 0.72);
+.dashboard__grid {
+  display: grid;
+  gap: 1rem;
 }
 
-/* Texto pequeño que identifica la métrica. */
-.stat-card__label {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-soft);
+@media (min-width: 1024px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
-
-/* Valor principal de la tarjeta, con más peso visual. */
-.stat-card__value {
-  margin: 0.6rem 0 0;
-  font-size: 2.25rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: #f8fbff;
-}
+/* StatCard moved to src/components/StatCard.css */
 
 /* En escritorio el dashboard convive con el sidebar y las métricas se muestran en columnas. */
 @media (min-width: 1024px) {

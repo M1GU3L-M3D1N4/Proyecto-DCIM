@@ -1,0 +1,58 @@
+/*
+  Estilos del panel de acceso rápido.
+  Muestra una lista de enlaces navegables hacia secciones principales
+  con descripción corta de cada una.
+*/
+.quick-access {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: rgba(255,255,255,0.02);
+}
+
+/* Título que identifica el panel. */
+.quick-access__title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.05rem;
+  color: #f8fbff;
+  font-weight: 700;
+}
+
+/* Contenedor vertical de los atajos. */
+.quick-access__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Elemento individual de la lista. */
+.quick-access__item {
+}
+
+/* Enlace navegable con efecto hover sutil. */
+.quick-access__link {
+  display: block;
+  padding: 0.6rem 0.2rem;
+  border-radius: 0.5rem;
+  color: var(--text);
+}
+
+/* Cambio de fondo ligero al pasar el cursor. */
+.quick-access__link:hover {
+  background: rgba(148,163,184,0.04);
+}
+
+/* Título del atajo con mayor peso visual. */
+.quick-access__label {
+  font-weight: 700;
+  color: #f8fbff;
+}
+
+/* Descripción corta del atajo. */
+.quick-access__desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}

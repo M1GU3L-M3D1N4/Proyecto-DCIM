@@ -1,0 +1,27 @@
+/*
+  Estilos de la tarjeta de métricas.
+  Este bloque define la apariencia compacta y consistente que usan los resúmenes
+  numéricos dentro del dashboard u otras vistas similares.
+*/
+.stat-card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background: rgba(19, 34, 56, 0.72);
+}
+
+/* Texto corto que identifica la métrica. */
+.stat-card__label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-soft);
+}
+
+/* Valor principal de la tarjeta, con más peso visual para resaltar el dato. */
+.stat-card__value {
+  margin: 0.6rem 0 0;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #f8fbff;
+}

@@ -8,12 +8,16 @@ import "./Login.css";
  * y muestra errores o estados de carga para darle feedback al usuario.
  */
 function Login() {
+  // Estado para los campos del formulario.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Errores de validación (por campo) y de envío (global).
   const [errors, setErrors] = useState({});
+  // Indica si la petición de login está en progreso.
   const [loading, setLoading] = useState(false);
 
-  // Valida los datos mínimos antes de intentar autenticar.
+  // Valida los datos del formulario antes de intentar autenticar.
+  // Retorna un objeto con los errores encontrados (vacío si todo está bien).
   const validateForm = () => {
     const newErrors = {};
     if (!email) newErrors.email = "El correo es requerido";
@@ -23,7 +27,9 @@ function Login() {
     return newErrors;
   };
 
-  // Procesa el envío del formulario y coordina validación, petición y manejo de errores.
+  // Coordina la validación, petición al servidor y manejo de errores.
+  // Si hay errores de validación, los muestra sin enviar.
+  // Si la validación pasa, limpia errores previos y envía las credenciales.
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();

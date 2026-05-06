@@ -1,0 +1,60 @@
+/*
+  Estilos del panel de estado de equipos.
+  Presenta un resumen visual del estado de los dispositivos con indicadores
+  de color y conteos.
+*/
+.status-panel {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: rgba(255,255,255,0.02);
+}
+
+/* Título que identifica el panel. */
+.status-panel__title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.05rem;
+  color: #f8fbff;
+  font-weight: 700;
+}
+
+/* Contenedor vertical de las filas de estado. */
+.status-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Fila individual con indicador y cantidad. */
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Lado izquierdo de la fila: punto de color y etiqueta. */
+.status-row__left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Punto de color que indica el estado. */
+.status-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+/* Texto descriptivo del estado. */
+.status-label {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+/* Cantidad o conteo asociado al estado. */
+.status-count {
+  color: var(--text-muted);
+  font-weight: 700;
+}

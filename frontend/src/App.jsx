@@ -21,17 +21,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Entrada principal de la app. */}
+        {/* Ruta raíz: pantalla de acceso al sistema. */}
         <Route path="/" element={<Login />} />
-        {/* Vista resumen del sistema. */}
+        {/* Vista principal después del login: resumen y métricas. */}
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* Catálogos y listados generales. */}
+        {/* Catálogos y listados principales. */}
         <Route path="/vendors" element={<VendorsList />} />
         <Route path="/models" element={<ModelsList />} />
         <Route path="/sites" element={<SitesList />} />
         <Route path="/rooms" element={<RoomsList />} />
         <Route path="/racks" element={<RacksList />} />
-        {/* Detalles por entidad. */}
+        {/* Vistas detalladas de entidades individuales. */}
         <Route path="/racks/:id" element={<RackDetail />} />
         <Route path="/devices" element={<DevicesList />} />
         <Route path="/devices/:id" element={<DeviceDetail />} />
