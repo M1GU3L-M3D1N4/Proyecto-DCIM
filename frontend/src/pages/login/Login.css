@@ -1,5 +1,10 @@
-/* Login page styles — modularized for consistency with project structure */
+/*
+  Estilos de la pantalla de login.
+  Este archivo define la composición visual del acceso: fondo, tarjeta,
+  branding, formulario, estados de error y ajustes para móvil.
+*/
 
+/* Centra el contenido y construye el fondo atmosférico de la pantalla. */
 .login-container {
   display: flex;
   align-items: center;
@@ -11,6 +16,7 @@
   padding: 1.5rem;
 }
 
+/* Tarjeta principal donde vive el formulario de acceso. */
 .login-card {
   width: 100%;
   max-width: 420px;
@@ -22,6 +28,7 @@
   backdrop-filter: blur(20px);
 }
 
+/* Cabecera con logo y texto de marca. */
 .login-header {
   display: flex;
   align-items: center;
@@ -29,6 +36,7 @@
   margin-bottom: 2.5rem;
 }
 
+/* Bloque del logo con gradiente y sombra suave. */
 .login-logo {
   display: flex;
   align-items: center;
@@ -42,11 +50,13 @@
   box-shadow: 0 8px 20px rgba(14, 165, 233, 0.24);
 }
 
+/* Ícono dentro del bloque de marca. */
 .login-logo-icon {
   width: 1.75rem;
   height: 1.75rem;
 }
 
+/* Nombre del sistema en la cabecera. */
 .login-title {
   margin: 0;
   font-size: 1.5rem;
@@ -55,24 +65,28 @@
   color: #f8fbff;
 }
 
+/* Texto secundario que da contexto al login. */
 .login-subtitle {
   margin: 0.2rem 0 0;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
+/* Estructura vertical del formulario. */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
+/* Agrupa cada campo con su etiqueta y su mensaje de error. */
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+/* Etiqueta del campo. */
 .form-label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -80,6 +94,7 @@
   letter-spacing: -0.01em;
 }
 
+/* Campo base de entrada, pensado para verse limpio y responder bien al foco. */
 .form-input {
   padding: 0.85rem 1rem;
   border: 1px solid var(--border);
@@ -90,6 +105,7 @@
   transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
 
+/* Estado de enfoque para dar feedback inmediato al usuario. */
 .form-input:focus {
   outline: none;
   border-color: var(--accent);
@@ -97,25 +113,30 @@
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
 }
 
+/* Color más tenue para el placeholder. */
 .form-input::placeholder {
   color: var(--text-soft);
 }
 
+/* Marca visual cuando el campo no pasa la validación. */
 .form-input--error {
   border-color: #ef4444;
   background: rgba(239, 68, 68, 0.08);
 }
 
+/* Mantiene la señal de error al enfocar el campo. */
 .form-input--error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
+/* Mensaje de error debajo de cada campo. */
 .form-error {
   font-size: 0.8rem;
   color: #ef4444;
   margin-top: -0.3rem;
 }
 
+/* Error global para fallas del envío o credenciales inválidas. */
 .form-error--global {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
@@ -124,6 +145,7 @@
   margin: 0;
 }
 
+/* Botón principal de acción. */
 .login-button {
   padding: 0.95rem 1.5rem;
   border: none;
@@ -138,21 +160,25 @@
   box-shadow: 0 12px 32px rgba(14, 165, 233, 0.28);
 }
 
+/* Ligero levantamiento al interactuar con el botón. */
 .login-button:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 16px 40px rgba(14, 165, 233, 0.36);
 }
 
+/* Vuelve a la posición base al hacer clic. */
 .login-button:active:not(:disabled) {
   transform: translateY(0);
 }
 
+/* Estado inactivo mientras se procesa el login. */
 .login-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* En pantallas pequeñas se ajusta el espaciado y se evita el zoom automático en iOS. */
 @media (max-width: 640px) {
   .login-card {
     padding: 2rem;

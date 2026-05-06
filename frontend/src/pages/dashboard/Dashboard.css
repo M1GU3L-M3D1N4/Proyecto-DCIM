@@ -1,4 +1,8 @@
-/* Dashboard component styles — modularized to reduce index.css size */
+/*
+  Estilos del dashboard.
+  Aquí vive la composición visual de la pantalla principal: fondo, panel,
+  encabezado, tarjetas de métricas y ajustes responsive.
+*/
 .app-shell {
   min-height: 100vh;
   background:
@@ -6,15 +10,18 @@
     linear-gradient(180deg, rgba(8, 17, 31, 0.92), rgba(11, 23, 40, 0.98));
 }
 
+/* En móvil el sidebar no se muestra como columna fija. */
 .app-shell__sidebar {
   display: none;
 }
 
+/* Contenedor general de la vista del dashboard. */
 .dashboard {
   min-height: 100vh;
   padding: 1.5rem;
 }
 
+/* Panel central que agrupa todo el contenido visible de la página. */
 .dashboard__panel {
   max-width: 76rem;
   margin: 0 auto;
@@ -29,6 +36,7 @@
   backdrop-filter: blur(16px);
 }
 
+/* Etiqueta superior para dar contexto rápido al usuario. */
 .dashboard__badge {
   display: inline-flex;
   width: fit-content;
@@ -43,11 +51,13 @@
   text-transform: uppercase;
 }
 
+/* Bloque del título y la descripción principal. */
 .dashboard__heading {
   display: grid;
   gap: 0.75rem;
 }
 
+/* Título grande que marca la jerarquía de la pantalla. */
 .dashboard__title {
   margin: 0;
   font-size: clamp(2.5rem, 5vw, 4.8rem);
@@ -56,6 +66,7 @@
   color: #f8fbff;
 }
 
+/* Texto de apoyo con una explicación corta del estado general. */
 .dashboard__description {
   max-width: 42rem;
   margin: 0;
@@ -64,11 +75,13 @@
   color: var(--text-muted);
 }
 
+/* Rejilla de métricas resumidas. */
 .stats-grid {
   display: grid;
   gap: 1rem;
 }
 
+/* Tarjeta individual de estadísticas. */
 .stat-card {
   padding: 1.25rem;
   border: 1px solid var(--border);
@@ -76,12 +89,14 @@
   background: rgba(19, 34, 56, 0.72);
 }
 
+/* Texto pequeño que identifica la métrica. */
 .stat-card__label {
   margin: 0;
   font-size: 0.875rem;
   color: var(--text-soft);
 }
 
+/* Valor principal de la tarjeta, con más peso visual. */
 .stat-card__value {
   margin: 0.6rem 0 0;
   font-size: 2.25rem;
@@ -90,6 +105,7 @@
   color: #f8fbff;
 }
 
+/* En escritorio el dashboard convive con el sidebar y las métricas se muestran en columnas. */
 @media (min-width: 1024px) {
   .app-shell {
     display: flex;

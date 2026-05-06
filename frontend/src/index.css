@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 
+/* Variables globales de color, sombras y tipografía compartidas por toda la app. */
 :root {
-  /* color tokens and shared variables */
   --bg: #08111f;
   --bg-elevated: #0f1a2d;
   --surface: #132238;
@@ -18,11 +18,14 @@
   font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Global resets and base styles */
-html, body, #root {
+/* Base estructural: asegura que la app ocupe toda la pantalla. */
+html,
+body,
+#root {
   min-height: 100vh;
 }
 
+/* Estilo general de la página: fondo oscuro y texto heredado del tema. */
 body {
   margin: 0;
   font-family: inherit;
@@ -30,16 +33,36 @@ body {
   color: var(--text);
 }
 
-*, *::before, *::after { box-sizing: border-box; }
+/* Evita cálculos de tamaño inconsistentes en todos los elementos. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-button, input, textarea, select { font: inherit; }
+/* Hace que los controles nativos respeten la tipografía del proyecto. */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
 
-::selection { background: rgba(56,189,248,0.3); color: #f8fbff; }
+/* Resalta el texto seleccionado con el color de acento del sistema. */
+::selection {
+  background: rgba(56, 189, 248, 0.3);
+  color: #f8fbff;
+}
 
-a { color: inherit; text-decoration: none; }
+/* Los enlaces heredan el estilo del texto para que el diseño sea más limpio. */
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-/* Component-specific styles moved to their own files */
-/* Sidebar: src/components/layout/Sidebar.css */
-/* Dashboard: src/pages/dashboard/Dashboard.css */
+/* Los estilos específicos de componentes viven en sus propios archivos:
+   - Sidebar: src/components/layout/Sidebar.css
+   - Dashboard: src/pages/dashboard/Dashboard.css
+*/
 
 

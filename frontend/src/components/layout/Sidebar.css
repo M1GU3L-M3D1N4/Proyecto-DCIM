@@ -1,4 +1,8 @@
-/* Styles extracted from global index.css to keep sidebar modular and concise */
+/*
+  Estilos del sidebar principal.
+  Este archivo concentra la estructura visual, el estado activo de la navegación
+  y el comportamiento responsive para que el layout no dependa del CSS global.
+*/
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -9,6 +13,7 @@
   backdrop-filter: blur(16px);
 }
 
+/* Cabecera con identidad visual del sistema. */
 .sidebar__brand {
   display: flex;
   align-items: center;
@@ -17,6 +22,7 @@
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
+/* Bloque del logo: forma simple, fondo en gradiente y sombra suave. */
 .sidebar__logo {
   display: flex;
   align-items: center;
@@ -29,11 +35,13 @@
   box-shadow: 0 16px 28px rgba(14, 165, 233, 0.24);
 }
 
+/* Ícono SVG contenido dentro del logo. */
 .sidebar__logo-icon {
   width: 1.75rem;
   height: 1.75rem;
 }
 
+/* Nombre principal del producto. */
 .sidebar__title {
   margin: 0;
   font-size: 1.1rem;
@@ -42,12 +50,14 @@
   color: #f8fbff;
 }
 
+/* Texto secundario que aclara el propósito del panel. */
 .sidebar__subtitle {
   margin: 0.2rem 0 0;
   font-size: 0.875rem;
   color: var(--text-muted);
 }
 
+/* Contenedor vertical de navegación. Ocupa el resto del alto disponible. */
 .sidebar__nav {
   display: flex;
   flex: 1;
@@ -56,6 +66,7 @@
   padding: 1rem 0.85rem 1.25rem;
 }
 
+/* Enlace base: compacto, legible y con transición suave al pasar el cursor. */
 .sidebar__link {
   display: flex;
   align-items: center;
@@ -68,17 +79,20 @@
   transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
+/* Pequeño desplazamiento para reforzar la interacción al hacer hover. */
 .sidebar__link:hover {
   background: rgba(148, 163, 184, 0.08);
   color: #f8fbff;
   transform: translateX(2px);
 }
 
+/* Estado de la ruta activa. Hace visible dónde está parado el usuario. */
 .sidebar__link--active {
   background: rgba(56, 189, 248, 0.14);
   color: #d7f4ff;
 }
 
+/* Caja decorativa para el ícono de cada enlace. */
 .sidebar__link-icon {
   display: flex;
   align-items: center;
@@ -90,6 +104,7 @@
   flex-shrink: 0;
 }
 
+/* Marcador mínimo dentro del ícono; mantiene el estilo limpio. */
 .sidebar__link-marker {
   width: 0.95rem;
   height: 0.95rem;
@@ -97,6 +112,7 @@
   border-radius: 0.35rem;
 }
 
+/* En pantallas pequeñas el sidebar deja de ocupar toda la altura y se integra al flujo. */
 @media (max-width: 1023px) {
   .sidebar {
     width: auto;

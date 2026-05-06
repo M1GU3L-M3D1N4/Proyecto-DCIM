@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
+// Enlaces principales del sistema. Mantener esta lista aquí hace fácil sumar o quitar secciones
+// sin tocar la estructura visual del componente.
 const navigationItems = [
 	{ to: "/", label: "Dashboard" },
 	{ to: "/sites", label: "Sitios" },
@@ -10,6 +12,13 @@ const navigationItems = [
 	{ to: "/models", label: "Modelos" },
 ];
 
+/**
+ * Barra lateral principal de la aplicación.
+ *
+ * Presenta la identidad visual del producto y deja a mano la navegación hacia
+ * las secciones clave del DCIM. El componente no decide permisos ni lógica de
+ * negocio; solo organiza accesos rápidos y resalta la ruta activa.
+ */
 function Sidebar() {
 	return (
 			<aside className="sidebar">

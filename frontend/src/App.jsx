@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// Importamos los componentes de las páginas y el enrutador de React Router todo esto pertence a la libreria react-router-dom
 
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -11,19 +10,28 @@ import RacksList from "./pages/racks/RacksList";
 import RackDetail from "./pages/racks/RackDetail";
 import DevicesList from "./pages/devices/DevicesList";
 import DeviceDetail from "./pages/devices/DeviceDetail";
-// Importamos los componentes de las páginas que hemos creado para cada ruta
 
+/**
+ * Raíz de navegación de la aplicación.
+ *
+ * Centraliza el enrutado público y privado del frontend para que cada pantalla
+ * quede asociada a una URL clara y fácil de mantener.
+ */
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Entrada principal de la app. */}
         <Route path="/" element={<Login />} />
+        {/* Vista resumen del sistema. */}
         <Route path="/dashboard" element={<Dashboard />} />
+        {/* Catálogos y listados generales. */}
         <Route path="/vendors" element={<VendorsList />} />
         <Route path="/models" element={<ModelsList />} />
         <Route path="/sites" element={<SitesList />} />
         <Route path="/rooms" element={<RoomsList />} />
         <Route path="/racks" element={<RacksList />} />
+        {/* Detalles por entidad. */}
         <Route path="/racks/:id" element={<RackDetail />} />
         <Route path="/devices" element={<DevicesList />} />
         <Route path="/devices/:id" element={<DeviceDetail />} />
@@ -33,7 +41,3 @@ function App() {
 }
 
 export default App;
-// Esta funcion define la estructura de rutas de nuestra aplicación utilizando React Router. 
-// Cada ruta está asociada a un componente que se renderiza cuando el usuario navega a esa ruta específica.
-// se importan las rutas de las paginas vendors, models, sites, rooms, racks y devices, ademas de los detalles de racks y devices.
-// se exporta el componente App para que pueda ser utilizado en otros archivos de la aplicación.

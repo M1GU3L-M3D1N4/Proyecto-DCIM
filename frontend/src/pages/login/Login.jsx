@@ -1,21 +1,29 @@
 import { useState } from "react";
 import "./Login.css";
 
+/**
+ * Pantalla de acceso a la aplicación.
+ *
+ * Maneja el estado del formulario, valida las credenciales antes de enviarlas
+ * y muestra errores o estados de carga para darle feedback al usuario.
+ */
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Valida los datos mínimos antes de intentar autenticar.
   const validateForm = () => {
     const newErrors = {};
     if (!email) newErrors.email = "El correo es requerido";
     else if (!/^[\w.-]+@[\w.-]+\.\w+$/.test(email)) newErrors.email = "Correo inválido";
     if (!password) newErrors.password = "La contraseña es requerida";
-    else if (password.length < 6) newErrors.password = "Mínimo 6 caracteres";
+    else if (password.length < 8) newErrors.password = "Mínimo 8 caracteres";
     return newErrors;
   };
 
+  // Procesa el envío del formulario y coordina validación, petición y manejo de errores.
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
@@ -28,7 +36,7 @@ function Login() {
     setErrors({});
 
     try {
-      // TODO: Reemplazar con endpoint real del backend
+      // TODO: Reemplazar con endpoint real del backend.
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,7 +49,7 @@ function Login() {
 
       const data = await response.json();
       console.log("Login exitoso:", data);
-      // TODO: Guardar token en localStorage y redirigir al dashboard
+      // TODO: Guardar token en localStorage y redirigir al dashboard.
     } catch (error) {
       setErrors({ submit: error.message });
     } finally {
@@ -51,7 +59,9 @@ function Login() {
 
   return (
     <div className="login-container">
+      {/* Tarjeta centrada que contiene el branding y el formulario. */}
       <div className="login-card">
+        {/* Encabezado visual con logo y nombre del sistema. */}
         <div className="login-header">
           <div className="login-logo">
             <svg viewBox="0 0 24 24" className="login-logo-icon" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -66,6 +76,7 @@ function Login() {
           </div>
         </div>
 
+        {/* Formulario de acceso con validación local y feedback inmediato. */}
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Correo electrónico</label>
