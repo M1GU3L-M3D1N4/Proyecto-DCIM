@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Importamos los componentes de las páginas y el enrutador de React Router todo esto pertence a la libreria react-router-dom
 
+import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 import VendorsList from "./pages/vendors/VendorsList";
 import ModelsList from "./pages/models/ModelsList";
@@ -16,7 +17,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/vendors" element={<VendorsList />} />
         <Route path="/models" element={<ModelsList />} />
         <Route path="/sites" element={<SitesList />} />
