@@ -75,23 +75,24 @@
   color: var(--text-muted);
 }
 
-/* Rejilla de métricas resumidas. */
+/* Rejilla de métricas resumidas que se expande en desktop. */
 .stats-grid {
   display: grid;
   gap: 1rem;
 }
 
+/* Contenedor de dos columnas para estado de equipos y accesos rápidos. */
 .dashboard__grid {
   display: grid;
   gap: 1rem;
 }
 
+/* En pantallas medianas y grandes, los paneles se organizan en dos columnas. */
 @media (min-width: 1024px) {
   .dashboard__grid {
     grid-template-columns: 1fr 1fr;
   }
 }
-/* StatCard moved to src/components/StatCard.css */
 
 /* En escritorio el dashboard convive con el sidebar y las métricas se muestran en columnas. */
 @media (min-width: 1024px) {

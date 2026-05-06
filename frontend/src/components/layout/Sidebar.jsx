@@ -5,7 +5,7 @@ import "./Sidebar.css";
 // Se mantiene aquí como una lista simple para poder agregar o quitar secciones
 // sin necesidad de tocar la estructura visual del componente.
 const navigationItems = [
-	{ to: "/", label: "Dashboard" },
+	{ to: "/dashboard", label: "Dashboard" },
 	{ to: "/sites", label: "Sitios" },
 	{ to: "/racks", label: "Racks" },
 	{ to: "/devices", label: "Equipos" },

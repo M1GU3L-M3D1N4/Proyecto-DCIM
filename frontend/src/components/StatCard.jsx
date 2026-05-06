@@ -2,17 +2,21 @@ import React from 'react';
 import './StatCard.css';
 
 /**
- * Tarjeta reutilizable para mostrar una métrica resumida.
+ * Tarjeta reutilizable para mostrar una métrica numérica.
  *
- * Recibe una etiqueta y un valor para renderizar un bloque compacto y uniforme
- * dentro de paneles de estadísticas o resúmenes visuales.
+ * Componente pequeño y modular que se usa para destacar números importantes
+ * como totales de sitios, racks o dispositivos. Recibe dos props:
+ * - label: Nombre descriptivo de la métrica (ej: "Sitios")
+ * - value: Valor numérico a mostrar
+ *
+ * Se puede reutilizar en cualquier panel de resumen o dashboard.
  */
 function StatCard({ label, value }) {
   return (
     <article className="stat-card">
-      {/* Nombre corto de la métrica. */}
+      {/* Etiqueta identificadora de la métrica. */}
       <p className="stat-card__label">{label}</p>
-      {/* Valor principal asociado a la métrica. */}
+      {/* Número principal con mayor peso visual. */}
       <p className="stat-card__value">{value}</p>
     </article>
   );

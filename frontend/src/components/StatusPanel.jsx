@@ -4,18 +4,19 @@ import './StatusPanel.css';
 /**
  * Fila individual de estado.
  *
- * Componente pequeño que renderiza un indicador visual (punto de color),
+ * Componente auxiliar que renderiza un indicador visual (punto de color),
  * una etiqueta descriptiva y un conteo asociado.
+ * Se utiliza dentro de StatusPanel para mostrar cada categoría de estado.
  */
 function StatusRow({ color, label, count }) {
   return (
     <div className="status-row">
-      {/* Lado izquierdo: punto de color e identificador. */}
+      {/* Lado izquierdo: punto de color que identifica visualmente el estado. */}
       <div className="status-row__left">
         <span className="status-dot" style={{ background: color }} />
         <span className="status-label">{label}</span>
       </div>
-      {/* Lado derecho: cantidad de elementos en ese estado. */}
+      {/* Lado derecho: cantidad total de elementos en ese estado. */}
       <div className="status-count">{count}</div>
     </div>
   );
@@ -24,15 +25,20 @@ function StatusRow({ color, label, count }) {
 /**
  * Panel que muestra el estado resumido de los equipos.
  *
- * Recibe una lista de elementos con color, etiqueta y conteo para presentar
- * un resumen visual del estado actual de los dispositivos.
+ * Recibe un array de items con propiedades:
+ * - color: Código hexadecimal para el indicador visual
+ * - label: Texto que describe el estado (ej: "Activos", "Mantenimiento")
+ * - count: Número de equipos en ese estado
+ *
+ * Se usa en el dashboard para dar una vista rápida del estado general
+ * del datacenter sin necesidad de entrar a detalles.
  */
 function StatusPanel({ items = [] }) {
   return (
     <section className="status-panel">
-      {/* Título del panel. */}
+      {/* Encabezado del panel. */}
       <h3 className="status-panel__title">Estado de Equipos</h3>
-      {/* Lista de estados con indicadores visuales. */}
+      {/* Renderiza una fila para cada estado proporcionado. */}
       <div className="status-panel__list">
         {items.map((it) => (
           <StatusRow key={it.label} color={it.color} label={it.label} count={it.count} />

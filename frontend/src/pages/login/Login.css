@@ -129,6 +129,43 @@
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
+/* Contenedor que envuelve el input de contraseña con un botón de visibilidad. */
+.form-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* El input dentro de wrapper ocupa el espacio disponible, dejando lugar para el botón. */
+.form-input-wrapper .form-input {
+  flex: 1;
+  padding-right: 2.8rem;
+}
+
+/* Botón para mostrar/ocultar la contraseña. Se posiciona absolutamente sobre el input. */
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+/* Feedback visual al pasar el cursor sobre el botón. */
+.password-toggle:hover {
+  opacity: 0.7;
+  color: var(--text);
+}
+
+/* Efecto visual al hacer clic. */
+.password-toggle:active {
+  opacity: 0.9;
+}
+
 /* Mensaje de error debajo de cada campo. */
 .form-error {
   font-size: 0.8rem;

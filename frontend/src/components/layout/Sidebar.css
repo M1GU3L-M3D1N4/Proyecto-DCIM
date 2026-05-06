@@ -1,7 +1,10 @@
 /*
-  Estilos del sidebar principal.
-  Este archivo concentra la estructura visual, el estado activo de la navegación
-  y el comportamiento responsive para que el layout no dependa del CSS global.
+  Estilos del sidebar principal de navegación.
+  Este archivo concentra toda la estructura visual del panel lateral:
+  - Identidad visual de la marca (logo y nombre)
+  - Navegación a secciones principales del sistema
+  - Estados activos para indicar dónde está el usuario
+  - Comportamiento responsive para adaptarse a pantallas pequeñas
 */
 .sidebar {
   display: flex;

@@ -1,0 +1,46 @@
+{
+  "user": {
+    "email": "admin@dcim.local",
+    "password": "admin123"
+
+  },
+  "metrics": {
+    "sites": 12,
+    "racks": 48,
+    "devices": 256
+  },
+  "equipmentStatus": [
+    {
+      "label": "Activos",
+      "count": 9,
+      "color": "#10b981"
+    },
+    {
+      "label": "Mantenimiento",
+      "count": 1,
+      "color": "#f59e0b"
+    },
+    {
+      "label": "Retirados",
+      "count": 1,
+      "color": "#6b7280"
+    }
+  ],
+  "quickAccess": [
+    {
+      "title": "Gestión de Sitios",
+      "desc": "Ver todos los datacenters",
+      "href": "/sites"
+    },
+    {
+      "title": "Inventario de Equipos",
+      "desc": "Buscar y filtrar equipos",
+      "href": "/devices"
+    },
+    {
+      "title": "Modelos de Equipos",
+      "desc": "Catálogo de hardware",
+      "href": "/models"
+    }
+  ]
+}

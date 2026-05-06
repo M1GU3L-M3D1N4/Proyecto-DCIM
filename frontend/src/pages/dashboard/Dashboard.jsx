@@ -2,6 +2,7 @@
 import StatCard from "../../components/StatCard";
 import StatusPanel from "../../components/StatusPanel";
 import QuickAccess from "../../components/QuickAccess";
+import mockData from "../../data/mockData.json";
 import "./Dashboard.css";
 
 /**
@@ -10,9 +11,10 @@ import "./Dashboard.css";
  * Agrupa las vistas más importantes del sistema:
  * - Métricas clave: sitios, racks y dispositivos totales
  * - Estado de los equipos: activos, en mantenimiento, retirados
- * - Acceso rápido a secciones principales
+ * - Acceso rápido a secciones principales del sistema
  *
- * Los datos se muestran estáticos por ahora; se conectarán al backend más adelante.
+ * Actualmente utiliza datos simulados (mockData.json) para prototipar.
+ * Más adelante se conectará al backend para traer datos reales.
  */
 function Dashboard() {
 	return (
@@ -39,30 +41,19 @@ function Dashboard() {
 						</p>
 					</div>
 					{/* Métricas resumidas que sirven como punto de partida visual. */}
-					<div className="stats-grid">
-						<StatCard label="Sitios" value={0} />
-						<StatCard label="Racks" value={0} />
-						<StatCard label="Dispositivos" value={0} />
-					</div>
+					<div className="stats-grid">					{/* Estos valores vienen de los datos simulados; se reemplazarán con datos reales del backend. */}					<StatCard label="Sitios" value={mockData.metrics.sites} />
+					<StatCard label="Racks" value={mockData.metrics.racks} />
+					<StatCard label="Dispositivos" value={mockData.metrics.devices} />
+				</div>
 
 				{/* Segundo nivel de información: estado de equipos y accesos rápidos. */}
 				<div className="dashboard__grid">
 					{/* Panel que muestra el estado actual de los dispositivos por categoría. */}
-					<StatusPanel
-						items={[
-							{ label: 'Activos', count: 0, color: '#10b981' },
-							{ label: 'Mantenimiento', count: 0, color: '#f59e0b' },
-							{ label: 'Retirados', count: 0, color: '#6b7280' },
-						]}
-					/>
+					{/* Los datos vienen de mockData; se actualizarán desde el backend después. */}
+					<StatusPanel items={mockData.equipmentStatus} />
 					{/* Atajos para navegar rápidamente a las secciones más usadas del sistema. */}
-					<QuickAccess
-						items={[
-							{ title: 'Gestión de Sitios', desc: 'Ver todos los datacenters', href: '/sites' },
-							{ title: 'Inventario de Equipos', desc: 'Buscar y filtrar equipos', href: '/devices' },
-							{ title: 'Modelos de Equipos', desc: 'Catálogo de hardware', href: '/models' },
-						]}
-					/>
+					{/* Las URLs y descripciones están en mockData por ahora. */}
+					<QuickAccess items={mockData.quickAccess} />
 				</div>
 				</section>
 			</main>

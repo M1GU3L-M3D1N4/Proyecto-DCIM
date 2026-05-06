@@ -1,5 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
+
+// Datos de prueba
+const mockUser = {
+  email: "admin@dcim.local",
+  password: "admin123",
+  name: "Admin User",
+  role: "Administrador"
+};
 
 /**
  * Pantalla de acceso a la aplicación.
@@ -7,10 +16,12 @@ import "./Login.css";
  * Maneja el estado del formulario, valida las credenciales antes de enviarlas
  * y muestra errores o estados de carga para darle feedback al usuario.
  */
-function Login() {
+function Login({ onLoginSuccess }) {
+  const navigate = useNavigate();
   // Estado para los campos del formulario.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   // Errores de validación (por campo) y de envío (global).
   const [errors, setErrors] = useState({});
   // Indica si la petición de login está en progreso.
@@ -23,7 +34,7 @@ function Login() {
     if (!email) newErrors.email = "El correo es requerido";
     else if (!/^[\w.-]+@[\w.-]+\.\w+$/.test(email)) newErrors.email = "Correo inválido";
     if (!password) newErrors.password = "La contraseña es requerida";
-    else if (password.length < 8) newErrors.password = "Mínimo 8 caracteres";
+    else if (password.length < 6) newErrors.password = "Mínimo 6 caracteres";
     return newErrors;
   };
 
@@ -42,20 +53,25 @@ function Login() {
     setErrors({});
 
     try {
-      // TODO: Reemplazar con endpoint real del backend.
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Credenciales inválidas");
+      // Validar contra datos falsos
+      // Cuando haya backend real, reemplazar por fetch a /api/auth/login
+      if (email === mockUser.email && password === mockUser.password) {
+        const userData = {
+          email: mockUser.email,
+          name: mockUser.name,
+          role: mockUser.role,
+          token: "fake-jwt-token-" + Date.now(),
+        };
+        console.log("Login exitoso:", userData);
+        // Guardar datos en localStorage
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", userData.token);
+        if (onLoginSuccess) onLoginSuccess();
+        // Redirigir al dashboard con React Router
+        navigate("/dashboard");
+      } else {
+        throw new Error("Correo o contraseña incorrectos");
       }
-
-      const data = await response.json();
-      console.log("Login exitoso:", data);
-      // TODO: Guardar token en localStorage y redirigir al dashboard.
     } catch (error) {
       setErrors({ submit: error.message });
     } finally {
@@ -101,16 +117,26 @@ function Login() {
 
           <div className="form-group">
             <label className="form-label">Contraseña</label>
-            <input
-              type="password"
-              className={`form-input ${errors.password ? "form-input--error" : ""}`}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors({ ...errors, password: "" });
-              }}
-            />
+            <div className="form-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                className={`form-input ${errors.password ? "form-input--error" : ""}`}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors({ ...errors, password: "" });
+                }}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
             {errors.password && <span className="form-error">{errors.password}</span>}
           </div>
 

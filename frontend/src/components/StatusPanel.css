@@ -1,7 +1,8 @@
 /*
   Estilos del panel de estado de equipos.
-  Presenta un resumen visual del estado de los dispositivos con indicadores
-  de color y conteos.
+  Este componente presenta un resumen visual del estado de los dispositivos
+  mostrando indicadores de color y cantidades para cada categoría de estado
+  (activos, en mantenimiento, retirados, etc.).
 */
 .status-panel {
   padding: 1.25rem;
@@ -10,7 +11,7 @@
   background: rgba(255,255,255,0.02);
 }
 
-/* Título que identifica el panel. */
+/* Título que identifica el contenido del panel. */
 .status-panel__title {
   margin: 0 0 0.75rem 0;
   font-size: 1.05rem;
@@ -18,28 +19,28 @@
   font-weight: 700;
 }
 
-/* Contenedor vertical de las filas de estado. */
+/* Contenedor vertical que organiza las filas de estado. */
 .status-panel__list {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
 }
 
-/* Fila individual con indicador y cantidad. */
+/* Fila individual que representa un estado: punto de color, etiqueta y cantidad. */
 .status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* Lado izquierdo de la fila: punto de color y etiqueta. */
+/* Lado izquierdo de la fila: punto de color + etiqueta de estado. */
 .status-row__left {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-/* Punto de color que indica el estado. */
+/* Punto de color circular que identifica visualmente el estado. */
 .status-dot {
   width: 0.8rem;
   height: 0.8rem;
@@ -47,13 +48,13 @@
   display: inline-block;
 }
 
-/* Texto descriptivo del estado. */
+/* Etiqueta descriptiva del estado. */
 .status-label {
   color: var(--text);
   font-size: 0.95rem;
 }
 
-/* Cantidad o conteo asociado al estado. */
+/* Cantidad de equipos en ese estado. Se muestra a la derecha con peso visual. */
 .status-count {
   color: var(--text-muted);
   font-weight: 700;
