@@ -93,6 +93,11 @@
 .sidebar__link--active {
   background: rgba(56, 189, 248, 0.14);
   color: #d7f4ff;
+  /* 
+    Estado de la ruta activa.
+    - Aplicado desde `NavLink` via `isActive` en Sidebar.jsx.
+    - Resalta visualmente la sección seleccionada.
+  */
 }
 
 /* Caja decorativa para el ícono de cada enlace. */
@@ -127,4 +132,52 @@
   .sidebar__nav {
     padding-bottom: 1.5rem;
   }
+}
+
+/* Footer dentro del sidebar para mostrar usuario y logout */
+.sidebar__footer {
+  margin-top: 1.4rem;
+  padding: 0.85rem 1rem;
+  align-self: stretch;
+  /* Footer dentro del sidebar para mostrar usuario y logout.
+     Integrado con `UserCard`/datos en localStorage; estilo aislado para
+     no interferir con la lista de navegación. */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(12, 20, 34, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 24px rgba(2,6,23,0.45);
+}
+
+.sidebar__logout {
+  background: transparent;
+  border: 1px solid rgba(56,189,248,0.12);
+  color: #bfefff;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar__logout:hover {
+  background: rgba(56,189,248,0.06);
+}
+
+.sidebar__user {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__user-name {
+  margin: 0;
+  font-weight: 700;
+  color: #f8fbff;
+}
+
+.sidebar__user-role {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }

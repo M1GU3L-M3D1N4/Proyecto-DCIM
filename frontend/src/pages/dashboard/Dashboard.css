@@ -8,6 +8,7 @@
   background:
     radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 24%),
     linear-gradient(180deg, rgba(8, 17, 31, 0.92), rgba(11, 23, 40, 0.98));
+  position: relative;
 }
 
 /* En móvil el sidebar no se muestra como columna fija. */
@@ -29,6 +30,7 @@
   flex-direction: column;
   gap: 1.75rem;
   padding: 1.5rem;
+  position: relative;
   border: 1px solid var(--border);
   border-radius: 2rem;
   background: rgba(15, 26, 45, 0.86);
@@ -76,12 +78,17 @@
 }
 
 /* Rejilla de métricas resumidas que se expande en desktop. */
+/* Grid de tarjetas de métricas.
+   Contiene `StatCard` componentes; en desktop se distribuye en 3 columnas.
+   Fuente de datos: `mockData.metrics` (prototipo). */
 .stats-grid {
   display: grid;
   gap: 1rem;
 }
 
 /* Contenedor de dos columnas para estado de equipos y accesos rápidos. */
+/* Grid secundario: `StatusPanel` y `QuickAccess`.
+   En pantallas >=1024px se dispone en dos columnas de igual ancho. */
 .dashboard__grid {
   display: grid;
   gap: 1rem;

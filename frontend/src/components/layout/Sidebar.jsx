@@ -1,9 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
-// Rutas navegables disponibles en el sidebar.
-// Se mantiene aquí como una lista simple para poder agregar o quitar secciones
-// sin necesidad de tocar la estructura visual del componente.
+// Lista de rutas mostradas en la barra lateral.
+// Estructura: { to: string, label: string }
+// Mantenerla aquí facilita añadir/quitar ítems sin tocar la lógica de render.
 const navigationItems = [
 	{ to: "/dashboard", label: "Dashboard" },
 	{ to: "/sites", label: "Sitios" },
@@ -13,16 +13,38 @@ const navigationItems = [
 	{ to: "/models", label: "Modelos" },
 ];
 
+
 /**
- * Barra lateral principal de la aplicación.
+ * Sidebar
  *
- * Presenta la identidad visual del producto y deja a mano la navegación hacia
- * las secciones clave del DCIM. El componente no decide permisos ni lógica de
- * negocio; solo organiza accesos rápidos y resalta la ruta activa.
+ * Componente presentacional que renderiza la navegación lateral.
+ * Responsabilidades:
+ * - Renderizar `navigationItems` en orden.
+ * - Aplicar la clase de estado activo a la ruta seleccionada.
+ * - No realiza comprobaciones de permisos ni fetches.
  */
 function Sidebar() {
+	const navigate = useNavigate();
+
+	// Leer datos del usuario desde localStorage (opcional, solo para mostrar
+	// información si está disponible). Fallos en parseo se silencian.
+	const user = (() => {
+		try {
+			const raw = localStorage.getItem("user");
+			return raw ? JSON.parse(raw) : null;
+		} catch (e) {
+			return null;
+		}
+	})();
+
+	const handleLogout = () => {
+		localStorage.removeItem("user");
+		localStorage.removeItem("token");
+		navigate("/");
+	};
+
 	return (
-			<aside className="sidebar">
+		<aside className="sidebar">
 			<div className="sidebar__brand">
 				<div className="sidebar__logo">
 					<svg viewBox="0 0 24 24" className="sidebar__logo-icon" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -42,12 +64,12 @@ function Sidebar() {
 					<NavLink
 						key={item.to}
 						to={item.to}
+						// `isActive` controla el modificador visual. Dejar la lógica
+						// en la función permite personalizar clases si se necesita.
 						className={({ isActive }) =>
 							[
 								"sidebar__link",
-								isActive
-									? "sidebar__link--active"
-									: "",
+								isActive ? "sidebar__link--active" : "",
 							].join(" ")
 						}
 					>
