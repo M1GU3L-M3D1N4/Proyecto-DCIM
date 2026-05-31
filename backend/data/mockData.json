@@ -1,0 +1,36 @@
+{
+  "user": {
+    "email": "admin@dcim.local",
+    "password": "admin123",
+    "name": "Admin User",
+    "role": "Administrador"
+  },
+  "metrics": {
+    "sites": 1,
+    "racks": 1,
+    "devices": 1
+  },
+  "vendors": [
+    { "vendor_id": 1, "name": "Cisco", "support_url": "https://www.cisco.com" },
+    { "vendor_id": 2, "name": "Dell", "support_url": "https://www.dell.com" }
+  ],
+  "device_models": [
+    { "model_id": 1, "vendor_id": 1, "model_name": "Catalyst 9300", "device_type": "switch", "u_height": 1 },
+    { "model_id": 2, "vendor_id": 2, "model_name": "PowerEdge R740", "device_type": "server", "u_height": 2 }
+  ],
+  "sites": [
+    { "site_id": 1, "name": "DC1", "city": "Bogotá", "address": "Calle 123" }
+  ],
+  "rooms": [
+    { "room_id": 1, "site_id": 1, "name": "Room A", "floor": "1" }
+  ],
+  "racks": [
+    { "rack_id": 1, "room_id": 1, "code": "RACK-01", "total_u": 42 }
+  ],
+  "devices": [
+    { "device_id": 1, "model_id": 2, "name": "web-01", "asset_tag": "AT-0001", "serial_number": "SN001", "rack_id": 1, "u_start": 10, "status": "active", "installed_at": "2023-01-15" }
+  ],
+  "rack_unit_occupancy": [
+    { "rack_id": 1, "unit": 10, "device_id": 1 }
+  ]
+}
