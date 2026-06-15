@@ -4,7 +4,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 import VendorsList from "./pages/vendors/VendorsList";
+import VendorDetail from "./pages/vendors/VendorDetail";
 import ModelsList from "./pages/models/ModelsList";
+import ModelDetail from "./pages/models/ModelDetail";
 import SitesList from "./pages/sites/SitesList";
 import RoomsList from "./pages/rooms/RoomsList";
 import RacksList from "./pages/racks/RacksList";
@@ -39,7 +41,9 @@ function App() {
         <Route path="/dashboard" element={renderProtectedRoute(<Dashboard />)} />
         {/* Catálogos y listados principales. */}
         <Route path="/vendors" element={renderProtectedRoute(<VendorsList />)} />
+        <Route path="/vendors/:id" element={renderProtectedRoute(<VendorDetail />)} />
         <Route path="/models" element={renderProtectedRoute(<ModelsList />)} />
+        <Route path="/models/:id" element={renderProtectedRoute(<ModelDetail />)} />
         <Route path="/sites" element={renderProtectedRoute(<SitesList />)} />
         <Route path="/rooms" element={renderProtectedRoute(<RoomsList />)} />
         <Route path="/racks" element={renderProtectedRoute(<RacksList />)} />

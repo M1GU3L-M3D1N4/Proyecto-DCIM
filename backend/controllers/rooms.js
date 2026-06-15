@@ -1,22 +1,15 @@
-/**
- * Controladores para `rooms`.
- * Por ahora son placeholders que devuelven 501 para indicar que
- * la implementación pendiente está en progreso.
- */
+const dataStore = require('../utils/dataStore');
 
-/**
- * list(req, res)
- * - Query params: `site_id` (opcional)
- * - Respuesta: [{ room_id, site_id, name, floor }, ...]
- */
 exports.list = (req, res) => {
-  res.status(501).json({ error: 'Not implemented: list rooms' });
+  const { site_id } = req.query;
+  let rooms = dataStore.getRooms();
+  if (site_id) rooms = rooms.filter((room) => String(room.site_id) === String(site_id));
+
+  return res.json(rooms.map((room) => dataStore.getRoomSummary(room)));
 };
 
-/**
- * getById(req, res)
- * - Params: `id` (room_id)
- */
 exports.getById = (req, res) => {
-  res.status(501).json({ error: 'Not implemented: get room by id' });
+  const room = dataStore.getRoomById(req.params.id);
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  return res.json(dataStore.getRoomSummary(room));
 };

@@ -2,19 +2,19 @@
 
 /* Variables globales de color, sombras y tipografía compartidas por toda la app. */
 :root {
-  --bg: #08111f;
-  --bg-elevated: #0f1a2d;
-  --surface: #132238;
-  --surface-strong: #1a2f4d;
-  --border: rgba(148, 163, 184, 0.2);
-  --text: #e5eefb;
-  --text-muted: #9fb1c9;
-  --text-soft: #7d8da4;
-  --accent: #38bdf8;
-  --accent-strong: #0ea5e9;
-  --accent-soft: rgba(56, 189, 248, 0.14);
-  --shadow: 0 24px 80px rgba(2, 8, 23, 0.36);
-  color-scheme: dark;
+  --bg: #f7f9fc;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-strong: #f3f7fc;
+  --border: rgba(148, 163, 184, 0.22);
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
+  color-scheme: light;
   font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -29,7 +29,7 @@ body,
 body {
   margin: 0;
   font-family: inherit;
-  background: linear-gradient(180deg, #08111f 0%, #0b1728 100%);
+  background: linear-gradient(180deg, #f7f9fc 0%, #edf3fb 100%);
   color: var(--text);
 }
 
@@ -50,8 +50,8 @@ select {
 
 /* Resalta el texto seleccionado con el color de acento del sistema. */
 ::selection {
-  background: rgba(56, 189, 248, 0.3);
-  color: #f8fbff;
+  background: rgba(37, 99, 235, 0.2);
+  color: #0f172a;
 }
 
 /* Los enlaces heredan el estilo del texto para que el diseño sea más limpio. */

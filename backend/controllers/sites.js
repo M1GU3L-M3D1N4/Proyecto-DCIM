@@ -1,27 +1,17 @@
-/**
- * Controladores para `sites`.
- * Leen datos desde el mock store para facilitar pruebas con Postman
- * y el frontend en desarrollo.
- */
+// Controladores para sites
+// Devuelven datos desde el mock para pruebas en Postman.
 const dataStore = require('../utils/dataStore');
 
-/**
- * list(req, res)
- * - Devuelve todos los sitios disponibles en el mock.
- */
+// list: devuelve todos los sitios. En el futuro se añadirán filtros.
 exports.list = (req, res) => {
-  const sites = dataStore.getSites();
-  return res.json(sites);
+	const sites = dataStore.getSites().map((site) => dataStore.getSiteSummary(site));
+	return res.json(sites);
 };
 
-/**
- * getById(req, res)
- * - Params: `id` (site_id)
- * - Responde 404 si no existe el sitio.
- */
+// getById: devuelve un sitio por su `site_id`.
 exports.getById = (req, res) => {
-  const id = req.params.id;
-  const site = dataStore.getSiteById(id);
-  if (!site) return res.status(404).json({ error: 'Site not found' });
-  return res.json(site);
+	const id = req.params.id;
+	const site = dataStore.getSiteById(id);
+	if (!site) return res.status(404).json({ error: 'Site not found' });
+	return res.json(dataStore.getSiteSummary(site));
 };

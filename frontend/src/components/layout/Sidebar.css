@@ -7,22 +7,98 @@
   - Comportamiento responsive para adaptarse a pantallas pequeñas
 */
 .sidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 18rem;
-  border-right: 1px solid var(--border);
-  background: rgba(10, 18, 32, 0.86);
+  flex-shrink: 0;
+  border-right: 1px solid rgba(219, 229, 241, 0.7);
+  background: #f8fbff;
   backdrop-filter: blur(16px);
+}
+
+.sidebar--collapsed {
+  width: 5.75rem;
+}
+
+.sidebar--light {
+  background: #f8fbff;
+  border-right-color: rgba(219, 229, 241, 0.7);
+}
+
+.sidebar--drawer {
+  position: relative;
 }
 
 /* Cabecera con identidad visual del sistema. */
 .sidebar__brand {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.9rem;
-  padding: 1.75rem 1.6rem;
+  padding: 1.35rem 1.25rem 1.15rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.sidebar--collapsed .sidebar__brand {
+  justify-content: center;
+  padding: 1.35rem 0.6rem;
+}
+
+.sidebar__brand-main {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.sidebar--collapsed .sidebar__brand-main {
+  justify-content: center;
+}
+
+.sidebar__brand-text {
+  min-width: 0;
+}
+
+.sidebar--collapsed .sidebar__brand-text,
+.sidebar--collapsed .sidebar__subtitle,
+.sidebar--collapsed .sidebar__link-label,
+.sidebar--collapsed .sidebar__footer {
+  display: none;
+}
+
+.sidebar__collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(219, 229, 241, 0.95);
+  border-radius: 0.9rem;
+  background: #ffffff;
+  color: #1d4ed8;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.sidebar__collapse svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar--light .sidebar__collapse {
+  background: #f8fbff;
+}
+
+.sidebar--light .sidebar__brand {
+  border-bottom-color: #dbe5f1;
 }
 
 /* Bloque del logo: forma simple, fondo en gradiente y sombra suave. */
@@ -35,7 +111,7 @@
   border-radius: 1rem;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #f8fbff;
-  box-shadow: 0 16px 28px rgba(14, 165, 233, 0.24);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.18);
 }
 
 /* Ícono SVG contenido dentro del logo. */
@@ -50,7 +126,7 @@
   font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #f8fbff;
+  color: #0f172a;
 }
 
 /* Texto secundario que aclara el propósito del panel. */
@@ -65,8 +141,37 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem 0.85rem 1.25rem;
+  gap: 0.95rem;
+  padding: 0.65rem 0.7rem 0.9rem;
+}
+
+.sidebar--collapsed .sidebar__nav {
+  padding: 0.65rem 0.4rem 0.85rem;
+}
+
+.sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar__section-title {
+  margin: 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.sidebar--collapsed .sidebar__section-title {
+  display: none;
+}
+
+.sidebar__section-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 /* Enlace base: compacto, legible y con transición suave al pasar el cursor. */
@@ -74,30 +179,58 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  padding: 0.95rem 1rem;
-  border-radius: 1rem;
+  min-height: 3.2rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 0.85rem;
   color: var(--text-muted);
   font-size: 0.96rem;
   font-weight: 600;
-  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.sidebar--collapsed .sidebar__link {
+  justify-content: center;
+  padding: 0.8rem 0.4rem;
+}
+
+.sidebar--light .sidebar__link {
+  color: #334155;
 }
 
 /* Pequeño desplazamiento para reforzar la interacción al hacer hover. */
 .sidebar__link:hover {
-  background: rgba(148, 163, 184, 0.08);
-  color: #f8fbff;
-  transform: translateX(2px);
+  background: rgba(37, 99, 235, 0.05);
+  color: #1d4ed8;
+}
+
+.sidebar--light .sidebar__link:hover {
+  background: rgba(37, 99, 235, 0.06);
+  color: #1d4ed8;
 }
 
 /* Estado de la ruta activa. Hace visible dónde está parado el usuario. */
 .sidebar__link--active {
-  background: rgba(56, 189, 248, 0.14);
-  color: #d7f4ff;
-  /* 
-    Estado de la ruta activa.
-    - Aplicado desde `NavLink` via `isActive` en Sidebar.jsx.
-    - Resalta visualmente la sección seleccionada.
-  */
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.12);
+}
+
+.sidebar--light .sidebar__link--active {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+/* Resaltar la caja del icono cuando el enlace está activo */
+.sidebar__link--active .sidebar__link-icon {
+  background: rgba(37, 99, 235, 0.14);
+  color: #1d4ed8;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.sidebar__link--active .sidebar__link-icon svg {
+  stroke: #1d4ed8;
+  transition: stroke 160ms ease, color 160ms ease;
 }
 
 /* Caja decorativa para el ícono de cada enlace. */
@@ -107,54 +240,51 @@
   justify-content: center;
   width: 2.4rem;
   height: 2.4rem;
-  border-radius: 0.8rem;
-  background: rgba(56, 189, 248, 0.12);
+  border-radius: 0.7rem;
+  background: rgba(37, 99, 235, 0.05);
   flex-shrink: 0;
 }
 
-/* Marcador mínimo dentro del ícono; mantiene el estilo limpio. */
-.sidebar__link-marker {
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 1.5px solid currentColor;
-  border-radius: 0.35rem;
+.sidebar__link-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-/* En pantallas pequeñas el sidebar deja de ocupar toda la altura y se integra al flujo. */
-@media (max-width: 1023px) {
-  .sidebar {
-    width: auto;
-    height: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
+.sidebar--light .sidebar__link-icon {
+  background: rgba(37, 99, 235, 0.05);
+}
 
-  .sidebar__nav {
-    padding-bottom: 1.5rem;
-  }
+.sidebar--collapsed .sidebar__link-icon {
+  width: 2.7rem;
+  height: 2.7rem;
 }
 
 /* Footer dentro del sidebar para mostrar usuario y logout */
 .sidebar__footer {
-  margin-top: 1.4rem;
-  padding: 0.85rem 1rem;
+  margin-top: auto;
+  padding: 0.85rem 0.95rem 0.95rem;
   align-self: stretch;
-  /* Footer dentro del sidebar para mostrar usuario y logout.
-     Integrado con `UserCard`/datos en localStorage; estilo aislado para
-     no interferir con la lista de navegación. */
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(12, 20, 34, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 24px rgba(2,6,23,0.45);
+  background: transparent;
+  border-top: 1px solid rgba(219, 229, 241, 0.35);
+}
+
+.sidebar--light .sidebar__footer {
+  background: transparent;
+  border-color: rgba(219, 229, 241, 0.35);
 }
 
 .sidebar__logout {
   background: transparent;
-  border: 1px solid rgba(56,189,248,0.12);
-  color: #bfefff;
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  color: #1d4ed8;
   padding: 0.35rem 0.6rem;
   border-radius: 0.6rem;
   cursor: pointer;
@@ -162,7 +292,16 @@
 }
 
 .sidebar__logout:hover {
-  background: rgba(56,189,248,0.06);
+  background: rgba(37,99,235,0.06);
+}
+
+.sidebar--light .sidebar__logout {
+  border-color: #cddcf1;
+  color: #1d4ed8;
+}
+
+.sidebar--light .sidebar__logout:hover {
+  background: #edf4ff;
 }
 
 .sidebar__user {
@@ -173,11 +312,88 @@
 .sidebar__user-name {
   margin: 0;
   font-weight: 700;
-  color: #f8fbff;
+  color: #0f172a;
 }
 
 .sidebar__user-role {
   margin: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.sidebar--light .sidebar__user-name {
+  color: #0f172a;
+}
+
+.sidebar--light .sidebar__user-role {
+  color: #64748b;
+}
+
+.sidebar__toggle {
+  display: none;
+  position: fixed;
+  top: 0.9rem;
+  left: 0.9rem;
+  z-index: 60;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.75rem;
+  border: 1px solid #dbe4f0;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+.sidebar--collapsed .sidebar__toggle {
+  left: 0.65rem;
+}
+
+.sidebar__toggle span {
+  display: block;
+  height: 2px;
+  margin: 0.28rem 0;
+  border-radius: 999px;
+  background: #0f172a;
+}
+
+.sidebar__overlay {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .sidebar {
+    width: 17rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 55;
+    transform: translateX(-102%);
+    transition: transform 220ms ease;
+    border-right: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .sidebar--drawer-open {
+    transform: translateX(0);
+  }
+
+  .sidebar__toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .sidebar__overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 54;
+    border: 0;
+    background: rgba(15, 23, 42, 0.28);
+    backdrop-filter: blur(2px);
+  }
+
+  .sidebar--collapsed {
+    width: 17rem;
+  }
 }

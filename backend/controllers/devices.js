@@ -15,7 +15,7 @@ exports.list = (req, res) => {
 	if (rack_id) filters.rack_id = rack_id;
 	if (model_id) filters.model_id = model_id;
 	if (status) filters.status = status;
-	const devices = dataStore.getDevices(filters);
+	const devices = dataStore.getDevices(filters).map((device) => dataStore.getDeviceSummary(device));
 	// Respuesta directa con el array de dispositivos.
 	return res.json(devices);
 };
@@ -29,5 +29,5 @@ exports.getById = (req, res) => {
 	const id = req.params.id;
 	const device = dataStore.getDeviceById(id);
 	if (!device) return res.status(404).json({ error: 'Device not found' });
-	return res.json(device);
+	return res.json(dataStore.getDeviceSummary(device));
 };

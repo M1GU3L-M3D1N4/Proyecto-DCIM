@@ -1,0 +1,230 @@
+.sites-page {
+  min-height: 100vh;
+  display: flex;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 22%),
+    linear-gradient(180deg, #f7f9fc 0%, #edf3fb 100%);
+  color: #0f172a;
+}
+
+.sites-page__main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem;
+}
+
+.sites-page__content {
+  max-width: 100%;
+  min-height: calc(100vh - 3rem);
+  padding: 1.5rem;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dbe5f1;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.sites-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sites-page__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sites-page__title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: #0f172a;
+}
+
+.sites-page__subtitle {
+  margin: 0.55rem 0 0;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.sites-page__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.sites-page__create {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.95rem 1.15rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, #2f6bff, #1d4ed8);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.2);
+  cursor: pointer;
+}
+
+.sites-page__create svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sites-page__card {
+  border: 1px solid #dbe5f1;
+  border-radius: 1.25rem;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.sites-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.sites-table thead th {
+  padding: 1rem 1rem;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #111827;
+  background: #f8fbff;
+  border-bottom: 1px solid #dbe5f1;
+}
+
+.sites-table tbody td {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #dbe5f1;
+  font-size: 0.98rem;
+  color: #111827;
+  vertical-align: middle;
+}
+
+.sites-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.sites-table__name {
+  font-weight: 700;
+}
+
+.sites-table__rooms {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.sites-table__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.sites-table__btn,
+.sites-table__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  height: 2.4rem;
+  border-radius: 0.8rem;
+  border: 1px solid #d8e2f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sites-table__btn {
+  padding: 0 0.95rem;
+}
+
+.sites-table__btn svg,
+.sites-table__icon-btn svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sites-table__btn:hover,
+.sites-table__icon-btn:hover {
+  background: #f1f7ff;
+  border-color: #c7dcff;
+  color: #1d4ed8;
+}
+
+.sites-table__icon-btn {
+  width: 2.5rem;
+  flex-shrink: 0;
+}
+
+.sites-page__empty {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: #64748b;
+}
+
+@media (max-width: 1023px) {
+  .sites-page {
+    display: block;
+  }
+
+  .sites-page__main {
+    padding: 1rem;
+  }
+
+  .sites-page__content {
+    min-height: auto;
+    padding: 1rem;
+    border-radius: 1.5rem;
+  }
+
+  .sites-page__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sites-page__actions {
+    justify-content: flex-start;
+  }
+
+  .sites-table {
+    min-width: 46rem;
+  }
+
+  .sites-page__card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .sites-page__title {
+    font-size: 1.9rem;
+  }
+
+  .sites-page__create {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sites-table {
+    min-width: 40rem;
+  }
+}

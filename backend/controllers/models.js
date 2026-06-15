@@ -1,24 +1,33 @@
-/**
- * Controladores para `device_models`.
- * Actualmente son placeholders que devuelven 501 hasta implementar
- * la lógica real contra una fuente de datos.
- */
+const dataStore = require('../utils/dataStore');
 
-/**
- * list(req, res)
- * - Query params: `vendor_id` (opcional)
- * - Respuesta: [{ model_id, vendor_id, model_name, device_type, u_height }, ...]
- */
 exports.list = (req, res) => {
-  // Implementar filtrado y recuperación real de datos cuando se conecte
-  // a la base de datos o al servicio correspondiente.
-  res.status(501).json({ error: 'Not implemented: list models' });
+  const { vendor_id } = req.query;
+  let models = dataStore.getModels();
+  if (vendor_id) models = models.filter((model) => String(model.vendor_id) === String(vendor_id));
+
+  const response = models.map((model) => {
+    const vendor = dataStore.getVendorById(model.vendor_id);
+    const devices_count = dataStore.getDevices({ model_id: model.model_id }).length;
+    return {
+      ...model,
+      vendor_name: vendor?.name ?? 'Sin fabricante',
+      devices_count,
+    };
+  });
+
+  return res.json(response);
 };
 
-/**
- * getById(req, res)
- * - Params: `id` (model_id)
- */
 exports.getById = (req, res) => {
-  res.status(501).json({ error: 'Not implemented: get model by id' });
+  const model = dataStore.getModelById(req.params.id);
+  if (!model) return res.status(404).json({ error: 'Model not found' });
+
+  const vendor = dataStore.getVendorById(model.vendor_id);
+  const devices_count = dataStore.getDevices({ model_id: model.model_id }).length;
+
+  return res.json({
+    ...model,
+    vendor_name: vendor?.name ?? 'Sin fabricante',
+    devices_count,
+  });
 };

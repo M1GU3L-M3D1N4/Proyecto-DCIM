@@ -4,7 +4,6 @@ import StatusPanel from "../../components/StatusPanel";
 import QuickAccess from "../../components/QuickAccess";
 import mockData from "../../data/mockData.json";
 import "./Dashboard.css";
-import UserCard from "../../components/layout/UserCard";
 
 /**
  * Dashboard
@@ -23,7 +22,7 @@ function Dashboard() {
 			<div className="app-shell">
 			<div className="app-shell__sidebar">
 				{/* Navegación lateral visible en escritorio. */}
-				<Sidebar />
+				<Sidebar theme="light" />
 			</div>
 			{/* Contenido principal de la pantalla. */}
 			<main className="dashboard">
@@ -60,8 +59,6 @@ function Dashboard() {
 					<QuickAccess items={mockData.quickAccess} />
 				</div>
 
-				{/* Componente de usuario posicionado respecto al panel (abajo-izquierda) */}
-				<UserCard />
 				</section>
 			</main>
 		</div>
