@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/devices');
+const { authenticate } = require('../middlewares/auth');
 
 /*
 	Rutas `devices`
@@ -17,5 +18,8 @@ const controller = require('../controllers/devices');
 
 router.get('/', controller.list);
 router.get('/:id', controller.getById);
+router.post('/', authenticate, controller.create);
+router.put('/:id', authenticate, controller.update);
+router.delete('/:id', authenticate, controller.delete);
 
 module.exports = router;

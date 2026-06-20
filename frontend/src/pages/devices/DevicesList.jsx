@@ -2,33 +2,11 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { buildQueryString, fetchJson } from "../../lib/dcimApi";
+import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./DevicesList.css";
 
-const sitesById = new Map((mockData.sites || []).map((site) => [site.site_id, site]));
-const roomsById = new Map((mockData.rooms || []).map((room) => [room.room_id, room]));
-const racksById = new Map((mockData.racks || []).map((rack) => [rack.rack_id, rack]));
-const modelsById = new Map((mockData.device_models || []).map((model) => [model.model_id, model]));
-const vendorsById = new Map((mockData.vendors || []).map((vendor) => [vendor.vendor_id, vendor]));
-
 function DevicesList() {
-  const [devices, setDevices] = useState(() => (mockData.devices || []).map((device) => {
-    const rack = racksById.get(device.rack_id);
-    const room = rack ? roomsById.get(rack.room_id) : null;
-    const site = room ? sitesById.get(room.site_id) : null;
-    const model = modelsById.get(device.model_id);
-    const vendor = model ? vendorsById.get(model.vendor_id) : null;
-
-    return {
-      ...device,
-      rack_code: rack?.code ?? "Sin rack",
-      room_name: room?.name ?? "Sin sala",
-      site_name: site?.name ?? "Sin sitio",
-      model_name: model?.model_name ?? "Sin modelo",
-      vendor_name: vendor?.name ?? "Sin fabricante",
-    };
-  }));
+  const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
@@ -36,24 +14,72 @@ function DevicesList() {
   const modelId = searchParams.get("model_id");
   const status = searchParams.get("status");
 
-  useEffect(() => {
-    const loadDevices = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson(
-          `/api/devices${buildQueryString({ rack_id: rackId, model_id: modelId, status })}`,
-          devices,
-        );
-        setDevices(Array.isArray(data) ? data : devices);
-      } catch (loadError) {
-        setDevices(devices);
-        setError(loadError.message || "No se pudieron cargar los equipos");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadDevices = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      const data = await fetchJson(
+        `/api/devices${buildQueryString({ rack_id: rackId, model_id: modelId, status })}`,
+        [],
+      );
+      setDevices(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar los equipos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptDevice = (device = {}) => {
+    const modelValue = window.prompt("ID del modelo", device.model_id || modelId || "");
+    if (modelValue === null) return null;
+    const name = window.prompt("Nombre del equipo", device.name || "");
+    if (name === null) return null;
+    const assetTag = window.prompt("Asset tag", device.asset_tag || "");
+    if (assetTag === null) return null;
+    const serial = window.prompt("Serial", device.serial_number || "");
+    if (serial === null) return null;
+    const rackValue = window.prompt("ID del rack (opcional)", device.rack_id || rackId || "");
+    if (rackValue === null) return null;
+    const uStart = window.prompt("Posición U (opcional)", device.u_start || "");
+    if (uStart === null) return null;
+    const deviceStatus = window.prompt("Estado (active, maintenance, retired)", device.status || "active");
+    if (deviceStatus === null) return null;
+    const installedAt = window.prompt("Fecha de instalación YYYY-MM-DD", device.installed_at || "");
+    if (installedAt === null) return null;
+    return {
+      model_id: Number(modelValue),
+      name: name.trim(),
+      asset_tag: assetTag.trim() || null,
+      serial_number: serial.trim() || null,
+      rack_id: rackValue ? Number(rackValue) : null,
+      u_start: uStart ? Number(uStart) : null,
+      status: deviceStatus.trim(),
+      installed_at: installedAt.trim() || null,
+    };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptDevice();
+    if (!payload) return;
+    await postJson("/api/devices", payload);
+    await loadDevices();
+  };
+
+  const handleEdit = async (device) => {
+    const payload = promptDevice(device);
+    if (!payload) return;
+    await putJson(`/api/devices/${device.device_id}`, payload);
+    await loadDevices();
+  };
+
+  const handleDelete = async (device) => {
+    if (!window.confirm(`¿Eliminar el equipo ${device.name}?`)) return;
+    await deleteJson(`/api/devices/${device.device_id}`);
+    await loadDevices();
+  };
+
+  useEffect(() => {
     loadDevices();
   }, [rackId, modelId, status]);
 
@@ -75,6 +101,13 @@ function DevicesList() {
             </div>
 
             <div className="devices-page__actions">
+              <button type="button" className="devices-page__create" onClick={handleCreate}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Nuevo Equipo
+              </button>
               <Link to="/racks" className="devices-page__create">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 5v14" />
@@ -162,6 +195,8 @@ function DevicesList() {
                               <path d="M13.5 6.5 17.5 10.5" />
                             </svg>
                           </Link>
+                            <button type="button" className="devices-table__btn" onClick={() => handleEdit(device)}>Editar</button>
+                            <button type="button" className="devices-table__btn" onClick={() => handleDelete(device)}>Eliminar</button>
                         </div>
                       </td>
                     </tr>

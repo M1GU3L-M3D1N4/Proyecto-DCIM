@@ -23,3 +23,9 @@ function StatCard({ label, value }) {
 }
 
 export default StatCard;
+
+/** 
+ * Este componente muestra una tarjeta de estadísticas con un valor numérico y una etiqueta descriptiva.
+ * Recibe dos props: label (etiqueta) y value (valor) para mostrar la métrica.
+ * Se utiliza para destacar números importantes en paneles de resumen o dashboards.
+ */

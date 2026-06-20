@@ -1,44 +1,32 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
 import { fetchJson } from "../../lib/dcimApi";
+import DeviceEditForm from "./DeviceEditForm";
 import "./DeviceDetail.css";
-
-const sitesById = new Map((mockData.sites || []).map((site) => [site.site_id, site]));
-const roomsById = new Map((mockData.rooms || []).map((room) => [room.room_id, room]));
-const racksById = new Map((mockData.racks || []).map((rack) => [rack.rack_id, rack]));
-const modelsById = new Map((mockData.device_models || []).map((model) => [model.model_id, model]));
-const vendorsById = new Map((mockData.vendors || []).map((vendor) => [vendor.vendor_id, vendor]));
 
 function DeviceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const fallbackDevice = (() => {
-    const base = (mockData.devices || []).find((item) => String(item.device_id) === String(id));
-    if (!base) return null;
-    const rack = base.rack_id ? racksById.get(base.rack_id) : null;
-    const room = rack ? roomsById.get(rack.room_id) : null;
-    const site = room ? sitesById.get(room.site_id) : null;
-    const model = modelsById.get(base.model_id);
-    const vendor = model ? vendorsById.get(model.vendor_id) : null;
-    return { ...base, rack, room, site, model, vendor };
-  })();
-  const [device, setDevice] = useState(fallbackDevice);
+  const [device, setDevice] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const loadDevice = async () => {
+    setIsLoading(true);
+    const data = await fetchJson(`/api/devices/${id}`, null);
+    setDevice(data);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const loadDevice = async () => {
-      setIsLoading(true);
-      const data = await fetchJson(`/api/devices/${id}`, fallbackDevice);
-      if (data) {
-        setDevice({ ...(fallbackDevice || {}), ...(data || {}) });
-      }
-      setIsLoading(false);
-    };
-
     loadDevice();
   }, [id]);
+
+  const handleSaveDevice = async () => {
+    setIsEditing(false);
+    await loadDevice();
+  };
 
   if (isLoading) {
     return (
@@ -67,16 +55,28 @@ function DeviceDetail() {
     );
   }
 
-  const rack = device.rack_id ? racksById.get(device.rack_id) : null;
-  const room = rack ? roomsById.get(rack.room_id) : null;
-  const site = room ? sitesById.get(room.site_id) : null;
-  const model = modelsById.get(device.model_id);
-  const vendor = model ? vendorsById.get(model.vendor_id) : null;
-  const rackCode = device.rack_code ?? rack?.code ?? "Sin rack";
-  const roomName = device.room_name ?? room?.name ?? "Sin sala";
-  const siteName = device.site_name ?? site?.name ?? "Sin sitio";
-  const modelName = device.model_name ?? model?.model_name ?? "Sin modelo";
-  const vendorName = device.vendor_name ?? vendor?.name ?? "Sin fabricante";
+  if (isEditing) {
+    return (
+      <div className="device-detail-page">
+        <Sidebar theme="light" mode="drawer" />
+        <main className="device-detail-page__main">
+          <section className="device-detail-page__content">
+            <DeviceEditForm
+              device={device}
+              onSave={handleSaveDevice}
+              onCancel={() => setIsEditing(false)}
+            />
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  const rackCode = device.rack_code ?? "Sin rack";
+  const roomName = device.room_name ?? "Sin sala";
+  const siteName = device.site_name ?? "Sin sitio";
+  const modelName = device.model_name ?? "Sin modelo";
+  const vendorName = device.vendor_name ?? "Sin fabricante";
 
   return (
     <div className="device-detail-page">
@@ -93,7 +93,7 @@ function DeviceDetail() {
             </div>
 
             <div className="device-detail-page__actions">
-                    <Link to={`/devices/${device.device_id}?mode=edit`} className="device-detail-page__primary">Editar equipo</Link>
+                    <button type="button" onClick={() => setIsEditing(true)} className="device-detail-page__primary">Editar equipo</button>
               <Link to="/racks" className="device-detail-page__secondary">Ver racks</Link>
             </div>
           </header>
@@ -126,7 +126,7 @@ function DeviceDetail() {
                 <p><strong>Asset tag:</strong> {device.asset_tag ?? "N/D"}</p>
                 <p><strong>Serial:</strong> {device.serial_number ?? "N/D"}</p>
                 <p><strong>Instalado:</strong> {device.installed_at ?? "N/D"}</p>
-                <p><strong>Tipo:</strong> {model?.device_type ?? device.device_type ?? "N/D"}</p>
+                <p><strong>Tipo:</strong> {device.device_type ?? "N/D"}</p>
               </div>
             </article>
 

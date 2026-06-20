@@ -1,35 +1,58 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { fetchJson } from "../../lib/dcimApi";
+import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./SitesList.css";
 
-const fallbackSites = (mockData.sites || []).map((site) => ({
-  ...site,
-  rooms_count: (mockData.rooms || []).filter((room) => String(room.site_id) === String(site.site_id)).length,
-}));
-
 function SitesList() {
-  const [sites, setSites] = useState(fallbackSites);
+  const [sites, setSites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadSites = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson("/api/sites", fallbackSites);
-        setSites(Array.isArray(data) ? data : fallbackSites);
-      } catch (loadError) {
-        setSites(fallbackSites);
-        setError(loadError.message || "No se pudieron cargar los sitios");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadSites = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const data = await fetchJson("/api/sites", []);
+      setSites(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar los sitios");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptSite = (site = {}) => {
+    const name = window.prompt("Nombre del sitio", site.name || "");
+    if (name === null) return null;
+    const city = window.prompt("Ciudad", site.city || "");
+    if (city === null) return null;
+    const address = window.prompt("Dirección", site.address || "");
+    if (address === null) return null;
+    return { name: name.trim(), city: city.trim(), address: address.trim() };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptSite();
+    if (!payload) return;
+    await postJson("/api/sites", payload);
+    await loadSites();
+  };
+
+  const handleEdit = async (site) => {
+    const payload = promptSite(site);
+    if (!payload) return;
+    await putJson(`/api/sites/${site.site_id}`, payload);
+    await loadSites();
+  };
+
+  const handleDelete = async (site) => {
+    if (!window.confirm(`¿Eliminar el sitio ${site.name}?`)) return;
+    await deleteJson(`/api/sites/${site.site_id}`);
+    await loadSites();
+  };
+
+  useEffect(() => {
     loadSites();
   }, []);
 
@@ -47,6 +70,13 @@ function SitesList() {
             </div>
 
             <div className="sites-page__actions">
+              <button type="button" className="sites-page__create" onClick={handleCreate}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Nuevo Sitio
+              </button>
               <Link to="/rooms" className="sites-page__create">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 5v14" />
@@ -97,6 +127,12 @@ function SitesList() {
                               <path d="M13.5 6.5 17.5 10.5" />
                             </svg>
                           </Link>
+                          <button type="button" className="sites-table__btn" onClick={() => handleEdit(site)}>
+                            Editar
+                          </button>
+                          <button type="button" className="sites-table__btn" onClick={() => handleDelete(site)}>
+                            Eliminar
+                          </button>
                         </div>
                       </td>
                     </tr>

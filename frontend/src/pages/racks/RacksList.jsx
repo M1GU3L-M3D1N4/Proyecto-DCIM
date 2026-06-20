@@ -2,67 +2,60 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { buildQueryString, fetchJson } from "../../lib/dcimApi";
+import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./RacksList.css";
 
-const sitesById = new Map((mockData.sites || []).map((site) => [site.site_id, site]));
-const roomsById = new Map((mockData.rooms || []).map((room) => [room.room_id, room]));
-const modelsById = new Map((mockData.device_models || []).map((model) => [model.model_id, model]));
-
-const devicesByRack = (rackId) =>
-  (mockData.devices || []).filter((device) => String(device.rack_id) === String(rackId));
-
-const occupancyByRack = (rackId) =>
-  (mockData.rack_unit_occupancy || []).filter((unit) => String(unit.rack_id) === String(rackId));
-
-const getRackCapacity = (rack) => {
-  const occupancy = occupancyByRack(rack.rack_id);
-  if (occupancy.length === 0) {
-    return { usedUnits: 0, usedPercent: 0 };
-  }
-
-  const usedUnits = occupancy.length;
-  const usedPercent = Math.min(Math.round((usedUnits / rack.total_u) * 100), 100);
-  return { usedUnits, usedPercent };
-};
-
 function RacksList() {
-  const [racks, setRacks] = useState(() => (mockData.racks || []).map((rack) => {
-    const room = roomsById.get(rack.room_id);
-    const site = room ? sitesById.get(room.site_id) : null;
-    const devices = devicesByRack(rack.rack_id);
-    const occupancy = getRackCapacity(rack);
-
-    return {
-      ...rack,
-      room_name: room?.name ?? "Sin sala",
-      site_name: site?.name ?? "Sin sitio",
-      device_count: devices.length,
-      used_units: occupancy.usedUnits,
-      used_percent: occupancy.usedPercent,
-    };
-  }));
+  const [racks, setRacks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("room_id");
 
-  useEffect(() => {
-    const loadRacks = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson(`/api/racks${buildQueryString({ room_id: roomId })}`, racks);
-        setRacks(Array.isArray(data) ? data : racks);
-      } catch (loadError) {
-        setRacks(racks);
-        setError(loadError.message || "No se pudieron cargar los racks");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadRacks = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      const data = await fetchJson(`/api/racks${buildQueryString({ room_id: roomId })}`, []);
+      setRacks(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar los racks");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptRack = (rack = {}) => {
+    const roomValue = window.prompt("ID de la sala", rack.room_id || roomId || "");
+    if (roomValue === null) return null;
+    const code = window.prompt("Código del rack", rack.code || "");
+    if (code === null) return null;
+    const totalU = window.prompt("Capacidad total U", rack.total_u || "42");
+    if (totalU === null) return null;
+    return { room_id: Number(roomValue), code: code.trim(), total_u: Number(totalU) };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptRack();
+    if (!payload) return;
+    await postJson("/api/racks", payload);
+    await loadRacks();
+  };
+
+  const handleEdit = async (rack) => {
+    const payload = promptRack(rack);
+    if (!payload) return;
+    await putJson(`/api/racks/${rack.rack_id}`, payload);
+    await loadRacks();
+  };
+
+  const handleDelete = async (rack) => {
+    if (!window.confirm(`¿Eliminar el rack ${rack.code}?`)) return;
+    await deleteJson(`/api/racks/${rack.rack_id}`);
+    await loadRacks();
+  };
+
+  useEffect(() => {
     loadRacks();
   }, [roomId]);
 
@@ -85,6 +78,13 @@ function RacksList() {
             </div>
 
             <div className="racks-page__actions">
+              <button type="button" className="racks-page__create" onClick={handleCreate}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Nuevo Rack
+              </button>
               <Link to="/devices" className="racks-page__create">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 5v14" />
@@ -167,6 +167,8 @@ function RacksList() {
                           <path d="M13.5 6.5 17.5 10.5" />
                         </svg>
                       </Link>
+                      <button type="button" className="rack-card__btn" onClick={() => handleEdit(rack)}>Editar</button>
+                      <button type="button" className="rack-card__btn" onClick={() => handleDelete(rack)}>Eliminar</button>
                     </div>
                   </article>
                 ))}

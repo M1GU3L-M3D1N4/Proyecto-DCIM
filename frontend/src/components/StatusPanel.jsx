@@ -49,3 +49,14 @@ function StatusPanel({ items = [] }) {
 }
 
 export default StatusPanel;
+
+/**
+ * Este componente muestra un panel con el estado resumido de los equipos.
+ * Recibe un array de items con color, etiqueta y conteo, y renderiza una fila para cada uno.
+ * Las funciones que se usaron para crear este componente incluyen:
+ * - Composición de componentes: StatusPanel utiliza StatusRow para renderizar cada fila de estado.
+ * - Props para personalización: ambos componentes reciben props para configurar su apariencia y contenido.
+ * - Mapeo de arrays: StatusPanel mapea el array de items para generar una lista dinámica de filas.
+ * - Estilos CSS: se aplican clases para dar formato visual al panel y a las filas, incluyendo el uso de un punto de color para identificar cada estado.
+ * Este componente es útil para mostrar de manera clara y visual el estado general de los equipos en el datacenter, facilitando la identificación rápida de categorías como activos, en mantenimiento o inactivos.
+ */

@@ -1,27 +1,32 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
 import { fetchJson } from "../../lib/dcimApi";
+import ModelEditForm from "./ModelEditForm";
 import "./ModelsList.css";
 
 function ModelDetail() {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const fallbackModel = (mockData.device_models || []).find((item) => String(item.model_id) === String(id));
-	const [model, setModel] = useState(fallbackModel || null);
+	const [model, setModel] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isEditing, setIsEditing] = useState(false);
+
+	const loadModel = async () => {
+		setIsLoading(true);
+		const data = await fetchJson(`/api/models/${id}`, null);
+		setModel(data);
+		setIsLoading(false);
+	};
 
 	useEffect(() => {
-		const loadModel = async () => {
-			setIsLoading(true);
-			const data = await fetchJson(`/api/models/${id}`, fallbackModel || null);
-			setModel(data);
-			setIsLoading(false);
-		};
-
 		loadModel();
 	}, [id]);
+
+	const handleSaveModel = async () => {
+		setIsEditing(false);
+		await loadModel();
+	};
 
 	if (isLoading) {
 		return (
@@ -50,8 +55,25 @@ function ModelDetail() {
 		);
 	}
 
-	const vendor = (mockData.vendors || []).find((item) => String(item.vendor_id) === String(model.vendor_id));
-	const devices = (mockData.devices || []).filter((device) => String(device.model_id) === String(model.model_id));
+	if (isEditing) {
+		return (
+			<div className="catalog-page">
+				<Sidebar theme="light" mode="drawer" />
+				<main className="catalog-page__main">
+					<section className="catalog-page__content">
+						<ModelEditForm
+							model={model}
+							onSave={handleSaveModel}
+							onCancel={() => setIsEditing(false)}
+						/>
+					</section>
+				</main>
+			</div>
+		);
+	}
+
+	const vendorName = model.vendor_name || "Sin fabricante";
+	const devicesCount = model.devices_count || 0;
 
 	return (
 		<div className="catalog-page">
@@ -64,10 +86,11 @@ function ModelDetail() {
 							<button type="button" className="catalog-page__back" onClick={() => navigate("/models")}>← Volver</button>
 							<p className="catalog-page__eyebrow">Detalle de modelo</p>
 							<h1 className="catalog-page__title">{model.model_name}</h1>
-							<p className="catalog-page__subtitle">{vendor?.name ?? "Sin fabricante"}</p>
+							<p className="catalog-page__subtitle">{vendorName}</p>
 						</div>
 
 						<div className="catalog-page__actions">
+							<button type="button" onClick={() => setIsEditing(true)} className="catalog-page__link-button">Editar modelo</button>
 							<Link to="/vendors" className="catalog-page__link-button">Ver fabricante</Link>
 						</div>
 					</header>
@@ -83,20 +106,25 @@ function ModelDetail() {
 						</div>
 						<div className="catalog-stat-card">
 							<p className="catalog-stat-card__label">Equipos</p>
-							<p className="catalog-stat-card__value">{devices.length}</p>
+							<p className="catalog-stat-card__value">{devicesCount}</p>
 						</div>
 					</div>
 
 					<div className="catalog-panel">
 						<h2 className="catalog-panel__title">Equipos que usan este modelo</h2>
-						{devices.length === 0 ? (
+						{devicesCount === 0 ? (
 							<div className="catalog-page__empty">Todavía no hay equipos asociados.</div>
 						) : (
 							<div className="catalog-mini-list">
-								{devices.map((device) => (
+								{model.devices.map((device) => (
 									<div key={device.device_id} className="catalog-mini-item">
-										<strong>{device.hostname}</strong>
-										<span>{device.asset_tag}</span>
+										<div>
+											<strong>{device.name}</strong>
+											<span>{device.serial_number || 'Sin serial'} · {device.asset_tag || 'Sin asset'}</span>
+										</div>
+										<div>
+											<span>{device.site_name} · {device.room_name} · {device.rack_code}</span>
+										</div>
 									</div>
 								))}
 							</div>

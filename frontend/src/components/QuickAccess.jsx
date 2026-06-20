@@ -38,3 +38,9 @@ function QuickAccess({ items = [] }) {
 }
 
 export default QuickAccess;
+/** 
+ * Este componente muestra un panel de acceso rápido a secciones principales.
+ * Recibe un array de items con título, descripción y URL, y los renderiza como enlaces navegables.
+ * Cada item se muestra con su título y una breve descripción para facilitar la navegación del usuario.
+ * Se ulitizo una estructura de lista para organizar los atajos, y se aplican estilos CSS para mejorar la presentación visual.
+ */

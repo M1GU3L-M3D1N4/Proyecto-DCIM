@@ -1,6 +1,4 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import mockData from "../../../src/data/mockData.json";
 import "./UserCard.css";
 
 /**
@@ -11,29 +9,26 @@ import "./UserCard.css";
  *
  * Comportamiento técnico:
  * - Lee `user` desde `localStorage` y lo parsea como JSON.
- * - Si no hay datos válidos, utiliza `mockData.user` como fallback (desarrollo).
  * - `handleLogout` elimina `user` y `token` de `localStorage` y navega a `/`.
  */
 function UserCard() {
   const navigate = useNavigate();
 
-  // Obtiene el usuario desde localStorage en tiempo de ejecución.
-  // Leer `user` desde localStorage; en caso de error o ausencia, devolver
-  // el usuario de `mockData` como fallback para desarrollo.
   const user = (() => {
     try {
       const raw = localStorage.getItem("user");
       if (raw) return JSON.parse(raw);
     } catch (e) {
-      // Si falla el parseo o el acceso, se ignora el error y se usa el mock.
+      return null;
     }
-    return mockData?.user || null;
+    return null;
   })();
 
   // Cierra la sesión local eliminando credenciales y redirigiendo.
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    window.dispatchEvent(new Event("auth-change"));
     navigate("/");
   };
 

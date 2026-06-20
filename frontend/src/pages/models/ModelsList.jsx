@@ -1,47 +1,65 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { fetchJson } from "../../lib/dcimApi";
+import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./ModelsList.css";
 
-const vendorsById = new Map((mockData.vendors || []).map((vendor) => [vendor.vendor_id, vendor]));
-
 function ModelsList() {
-  const fallbackModels = (mockData.device_models || []).map((model) => {
-    const vendor = vendorsById.get(model.vendor_id);
-    const devicesCount = (mockData.devices || []).filter((device) => String(device.model_id) === String(model.model_id)).length;
-
-    return {
-      ...model,
-      vendor_name: vendor?.name ?? "Sin fabricante",
-      devices_count: devicesCount,
-    };
-  });
-  const [models, setModels] = useState(fallbackModels);
+  const [models, setModels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadModels = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson("/api/models", fallbackModels);
-        setModels(Array.isArray(data) ? data : fallbackModels);
-      } catch (loadError) {
-        setModels(fallbackModels);
-        setError(loadError.message || "No se pudieron cargar los modelos");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadModels = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const data = await fetchJson("/api/models", []);
+      setModels(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar los modelos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptModel = (model = {}) => {
+    const vendorId = window.prompt("ID del fabricante", model.vendor_id || "");
+    if (vendorId === null) return null;
+    const modelName = window.prompt("Nombre del modelo", model.model_name || "");
+    if (modelName === null) return null;
+    const deviceType = window.prompt("Tipo de dispositivo (server, switch, router, firewall, storage, ups, pdu, other)", model.device_type || "other");
+    if (deviceType === null) return null;
+    const height = window.prompt("Altura U", model.u_height || "1");
+    if (height === null) return null;
+    return { vendor_id: Number(vendorId), model_name: modelName.trim(), device_type: deviceType.trim(), u_height: Number(height) };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptModel();
+    if (!payload) return;
+    await postJson("/api/models", payload);
+    await loadModels();
+  };
+
+  const handleEdit = async (model) => {
+    const payload = promptModel(model);
+    if (!payload) return;
+    await putJson(`/api/models/${model.model_id}`, payload);
+    await loadModels();
+  };
+
+  const handleDelete = async (model) => {
+    if (!window.confirm(`¿Eliminar el modelo ${model.model_name}?`)) return;
+    await deleteJson(`/api/models/${model.model_id}`);
+    await loadModels();
+  };
+
+  useEffect(() => {
     loadModels();
   }, []);
 
-  const totalVendors = (mockData.vendors || []).length;
-  const totalDevices = (mockData.devices || []).length;
+  const totalVendors = new Set(models.map((model) => model.vendor_id)).size;
+  const totalDevices = models.reduce((sum, model) => sum + (model.devices_count || 0), 0);
 
   return (
     <div className="catalog-page">
@@ -56,6 +74,7 @@ function ModelsList() {
               <p className="catalog-page__subtitle">Modelos disponibles para dispositivos y equipos instalados</p>
             </div>
             <div className="catalog-page__actions">
+              <button type="button" className="catalog-page__link-button" onClick={handleCreate}>Nuevo modelo</button>
               <Link to="/vendors" className="catalog-page__link-button">Ver fabricantes</Link>
             </div>
           </header>
@@ -96,6 +115,8 @@ function ModelsList() {
                 <div className="catalog-card__actions">
                   <Link to={`/models/${model.model_id}`} className="catalog-card__button">Ver detalle</Link>
                   <Link to="/vendors" className="catalog-card__button catalog-card__button--ghost">Ver fabricante</Link>
+                  <button type="button" className="catalog-card__button" onClick={() => handleEdit(model)}>Editar</button>
+                  <button type="button" className="catalog-card__button catalog-card__button--ghost" onClick={() => handleDelete(model)}>Eliminar</button>
                 </div>
               </article>
             ))}

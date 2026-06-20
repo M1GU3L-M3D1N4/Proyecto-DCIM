@@ -1,45 +1,69 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { fetchJson } from "../../lib/dcimApi";
+import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./VendorsList.css";
 
+/**
+ * Pantalla de listado de fabricantes (vendors).
+ * Muestra un resumen de cada fabricante, incluyendo su nombre, URL de soporte, cantidad de modelos y equipos asociados.
+ * Permite crear, editar y eliminar fabricantes utilizando prompts para ingresar la información requerida.
+ * Se usaron las funciones `fetchJson`, `postJson`, `putJson` y `deleteJson` para interactuar con la API del backend y manejar las operaciones CRUD de los fabricantes.
+ * La url de esta pantalla es `/vendors`.
+ * El componente utiliza el hook `useEffect` para cargar la lista de fabricantes al montarse, y el estado local para manejar la información de los fabricantes, el estado de carga y los errores.
+ */
 function VendorsList() {
-  const fallbackVendors = (mockData.vendors || []).map((vendor) => {
-    const vendorModels = (mockData.device_models || []).filter((model) => String(model.vendor_id) === String(vendor.vendor_id));
-    const vendorDeviceIds = new Set(vendorModels.flatMap((model) => (mockData.devices || []).filter((device) => String(device.model_id) === String(model.model_id)).map((device) => device.device_id)));
-
-    return {
-      ...vendor,
-      models_count: vendorModels.length,
-      devices_count: vendorDeviceIds.size,
-    };
-  });
-  const [vendors, setVendors] = useState(fallbackVendors);
+  const [vendors, setVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadVendors = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson("/api/vendors", fallbackVendors);
-        setVendors(Array.isArray(data) ? data : fallbackVendors);
-      } catch (loadError) {
-        setVendors(fallbackVendors);
-        setError(loadError.message || "No se pudieron cargar los fabricantes");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadVendors = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const data = await fetchJson("/api/vendors", []);
+      setVendors(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar los fabricantes");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptVendor = (vendor = {}) => {
+    const name = window.prompt("Nombre del fabricante", vendor.name || "");
+    if (name === null) return null;
+    const supportUrl = window.prompt("URL de soporte", vendor.support_url || "");
+    if (supportUrl === null) return null;
+    return { name: name.trim(), support_url: supportUrl.trim() };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptVendor();
+    if (!payload) return;
+    await postJson("/api/vendors", payload);
+    await loadVendors();
+  };
+
+  const handleEdit = async (vendor) => {
+    const payload = promptVendor(vendor);
+    if (!payload) return;
+    await putJson(`/api/vendors/${vendor.vendor_id}`, payload);
+    await loadVendors();
+  };
+
+  const handleDelete = async (vendor) => {
+    if (!window.confirm(`¿Eliminar el fabricante ${vendor.name}?`)) return;
+    await deleteJson(`/api/vendors/${vendor.vendor_id}`);
+    await loadVendors();
+  };
+
+  useEffect(() => {
     loadVendors();
   }, []);
 
-  const totalModels = (mockData.device_models || []).length;
-  const totalDevices = (mockData.devices || []).length;
+  const totalModels = vendors.reduce((sum, vendor) => sum + (vendor.models_count || 0), 0);
+  const totalDevices = vendors.reduce((sum, vendor) => sum + (vendor.devices_count || 0), 0);
 
   return (
     <div className="catalog-page">
@@ -54,6 +78,7 @@ function VendorsList() {
               <p className="catalog-page__subtitle">Base de marcas asociadas a los modelos del inventario</p>
             </div>
             <div className="catalog-page__actions">
+              <button type="button" className="catalog-page__link-button" onClick={handleCreate}>Nuevo fabricante</button>
               <Link to="/models" className="catalog-page__link-button">Ver modelos</Link>
             </div>
           </header>
@@ -93,6 +118,8 @@ function VendorsList() {
                 <div className="catalog-card__actions">
                   <Link to={`/vendors/${vendor.vendor_id}`} className="catalog-card__button">Ver detalle</Link>
                   <Link to="/models" className="catalog-card__button catalog-card__button--ghost">Ver modelos</Link>
+                  <button type="button" className="catalog-card__button" onClick={() => handleEdit(vendor)}>Editar</button>
+                  <button type="button" className="catalog-card__button catalog-card__button--ghost" onClick={() => handleDelete(vendor)}>Eliminar</button>
                 </div>
               </article>
             ))}

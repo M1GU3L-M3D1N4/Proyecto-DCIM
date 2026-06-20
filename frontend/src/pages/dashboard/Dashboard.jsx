@@ -1,8 +1,9 @@
+import { useEffect, useState } from "react";
 	import Sidebar from "../../components/layout/Sidebar";
 import StatCard from "../../components/StatCard";
 import StatusPanel from "../../components/StatusPanel";
 import QuickAccess from "../../components/QuickAccess";
-import mockData from "../../data/mockData.json";
+import { fetchJson } from "../../lib/dcimApi";
 import "./Dashboard.css";
 
 /**
@@ -10,14 +11,47 @@ import "./Dashboard.css";
  *
  * Vista principal tras autenticación. Composición y datos:
  * - `Sidebar` (navegación lateral)
- * - `StatCard` (métricas, desde `mockData.metrics`)
- * - `StatusPanel` (estado de equipos, `mockData.equipmentStatus`)
- * - `QuickAccess` (enlaces rápidos, `mockData.quickAccess`)
- * - `UserCard` (control de sesión)
- *
- * Nota: hoy usa `mockData.json` como fuente; reemplazar por API en futuro.
+ * - `StatCard` (métricas cargadas desde la API)
+ * - `StatusPanel` (estado derivado desde la API)
+ * - `QuickAccess` (enlaces fijos de navegación)
  */
 function Dashboard() {
+	const [stats, setStats] = useState({ sites: 0, racks: 0, devices: 0 });
+	const [statusItems, setStatusItems] = useState([
+		{ label: "Activos", count: 0, color: "#10b981" },
+		{ label: "Mantenimiento", count: 0, color: "#f59e0b" },
+		{ label: "Retirados", count: 0, color: "#6b7280" },
+	]);
+	const quickAccess = [
+		{ title: "Gestión de Sitios", desc: "Ver todos los datacenters", href: "/sites" },
+		{ title: "Inventario de Equipos", desc: "Buscar y filtrar equipos", href: "/devices" },
+		{ title: "Modelos de Equipos", desc: "Catálogo de hardware", href: "/models" },
+	];
+
+	useEffect(() => {
+		const loadDashboard = async () => {
+			const [sites, racks, devices] = await Promise.all([
+				fetchJson("/api/sites", []),
+				fetchJson("/api/racks", []),
+				fetchJson("/api/devices", []),
+			]);
+
+			setStats({
+				sites: Array.isArray(sites) ? sites.length : 0,
+				racks: Array.isArray(racks) ? racks.length : 0,
+				devices: Array.isArray(devices) ? devices.length : 0,
+			});
+
+			setStatusItems([
+				{ label: "Activos", count: devices.filter((item) => item.status === "active").length, color: "#10b981" },
+				{ label: "Mantenimiento", count: devices.filter((item) => item.status === "maintenance").length, color: "#f59e0b" },
+				{ label: "Retirados", count: devices.filter((item) => item.status === "retired").length, color: "#6b7280" },
+			]);
+		};
+
+		loadDashboard();
+	}, []);
+
 	return (
 			<div className="app-shell">
 			<div className="app-shell__sidebar">
@@ -43,20 +77,15 @@ function Dashboard() {
 					</div>
 					{/* Métricas resumidas que sirven como punto de partida visual. */}
 					<div className="stats-grid">
-						{/* Fuente: mockData.metrics (prototipo). Reemplazar con API en futuro. */}
-						<StatCard label="Sitios" value={mockData.metrics.sites} />
-						<StatCard label="Racks" value={mockData.metrics.racks} />
-						<StatCard label="Dispositivos" value={mockData.metrics.devices} />
+						<StatCard label="Sitios" value={stats.sites} />
+						<StatCard label="Racks" value={stats.racks} />
+						<StatCard label="Dispositivos" value={stats.devices} />
 					</div>
 
 				{/* Segundo nivel de información: estado de equipos y accesos rápidos. */}
 				<div className="dashboard__grid">
-					{/* Panel que muestra el estado actual de los dispositivos por categoría. */}
-					{/* Los datos vienen de mockData; se actualizarán desde el backend después. */}
-					<StatusPanel items={mockData.equipmentStatus} />
-					{/* Atajos para navegar rápidamente a las secciones más usadas del sistema. */}
-					{/* Las URLs y descripciones están en mockData por ahora. */}
-					<QuickAccess items={mockData.quickAccess} />
+					<StatusPanel items={statusItems} />
+					<QuickAccess items={quickAccess} />
 				</div>
 
 				</section>

@@ -1,55 +1,35 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
 import { fetchJson } from "../../lib/dcimApi";
+import RackEditForm from "./RackEditForm";
 import "./RackDetail.css";
-
-const sitesById = new Map((mockData.sites || []).map((site) => [site.site_id, site]));
-const roomsById = new Map((mockData.rooms || []).map((room) => [room.room_id, room]));
-const modelsById = new Map((mockData.device_models || []).map((model) => [model.model_id, model]));
 
 function RackDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const fallbackRack = (() => {
-    const base = (mockData.racks || []).find((item) => String(item.rack_id) === String(id));
-    if (!base) return null;
-    const room = roomsById.get(base.room_id);
-    const site = room ? sitesById.get(room.site_id) : null;
-    const devices = (mockData.devices || [])
-      .filter((device) => String(device.rack_id) === String(base.rack_id))
-      .map((device) => ({
-        ...device,
-        model: modelsById.get(device.model_id),
-      }));
-    const usedUnits = (mockData.rack_unit_occupancy || []).filter((unit) => String(unit.rack_id) === String(base.rack_id)).length;
-    const occupancy = base.total_u ? Math.min(Math.round((usedUnits / base.total_u) * 100), 100) : 0;
-
-    return { ...base, room, site, devices, usedUnits, occupancy };
-  })();
-  const fallbackDevices = (() => {
-    if (!fallbackRack) return [];
-    return fallbackRack.devices || [];
-  })();
-  const [rack, setRack] = useState(fallbackRack);
-  const [devices, setDevices] = useState(fallbackDevices);
+  const [rack, setRack] = useState(null);
+  const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const loadRack = async () => {
+    setIsLoading(true);
+    const data = await fetchJson(`/api/racks/${id}`, null);
+    setRack(data);
+    const apiDevices = await fetchJson(`/api/devices?rack_id=${id}`, []);
+    setDevices(Array.isArray(apiDevices) ? apiDevices : []);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const loadRack = async () => {
-      setIsLoading(true);
-      const data = await fetchJson(`/api/racks/${id}`, fallbackRack);
-      if (data) {
-        setRack({ ...(fallbackRack || {}), ...(data || {}), occupancy: fallbackRack?.occupancy ?? data.used_percent ?? 0 });
-      }
-      const apiDevices = await fetchJson(`/api/devices?rack_id=${id}`, fallbackDevices);
-      setDevices(Array.isArray(apiDevices) ? apiDevices : fallbackDevices);
-      setIsLoading(false);
-    };
-
     loadRack();
   }, [id]);
+
+  const handleSaveRack = async () => {
+    setIsEditing(false);
+    await loadRack();
+  };
 
   if (isLoading) {
     return (
@@ -78,13 +58,28 @@ function RackDetail() {
     );
   }
 
-  const room = roomsById.get(rack.room_id);
-  const site = room ? sitesById.get(room.site_id) : null;
-  const usedUnits = rack.used_units ?? rack.usedUnits ?? (mockData.rack_unit_occupancy || []).filter((unit) => String(unit.rack_id) === String(rack.rack_id)).length;
-  const occupancy = rack.used_percent ?? rack.occupancy ?? (rack.total_u ? Math.min(Math.round((usedUnits / rack.total_u) * 100), 100) : 0);
-  const siteName = rack.site_name ?? site?.name ?? "Sin sitio";
-  const roomName = rack.room_name ?? room?.name ?? "Sin sala";
-  const roomFloor = room?.floor ?? "N/D";
+  if (isEditing) {
+    return (
+      <div className="rack-detail-page">
+        <Sidebar theme="light" mode="drawer" />
+        <main className="rack-detail-page__main">
+          <section className="rack-detail-page__content">
+            <RackEditForm
+              rack={rack}
+              onSave={handleSaveRack}
+              onCancel={() => setIsEditing(false)}
+            />
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  const usedUnits = rack.used_units ?? 0;
+  const occupancy = rack.used_percent ?? 0;
+  const siteName = rack.site_name ?? "Sin sitio";
+  const roomName = rack.room_name ?? "Sin sala";
+  const roomFloor = rack.floor ?? rack.room_floor ?? "N/D";
 
   return (
     <div className="rack-detail-page">
@@ -101,7 +96,7 @@ function RackDetail() {
             </div>
 
             <div className="rack-detail-page__actions">
-                    <Link to={`/racks/${rack.rack_id}?mode=edit`} className="rack-detail-page__primary">Editar rack</Link>
+                    <button type="button" onClick={() => setIsEditing(true)} className="rack-detail-page__primary">Editar rack</button>
               <Link to="/devices" className="rack-detail-page__secondary">Ver equipos</Link>
             </div>
           </header>

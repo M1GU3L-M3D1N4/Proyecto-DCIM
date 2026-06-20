@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+// Importar las páginas principales de la aplicación  
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 import VendorsList from "./pages/vendors/VendorsList";
@@ -21,16 +21,30 @@ import DeviceDetail from "./pages/devices/DeviceDetail";
  * quede asociada a una URL clara y fácil de mantener.
  */
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem("token")));
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
   };
+  // Sincronizar el estado de autenticación con cambios en el almacenamiento local (ej. logout en otra pestaña)
+  useEffect(() => {
+    const syncAuthState = () => {
+      setIsAuthenticated(Boolean(localStorage.getItem("token")));
+    };
+// Escuchar eventos de cambio de autenticación y almacenamiento para mantener el estado actualizado en todas las pestañas de la aplicación.
+    window.addEventListener("auth-change", syncAuthState);
+    window.addEventListener("storage", syncAuthState);
 
+    return () => {
+      window.removeEventListener("auth-change", syncAuthState);
+      window.removeEventListener("storage", syncAuthState);
+    };
+  }, []);
+// Función auxiliar para renderizar rutas protegidas: si el usuario no está autenticado, redirige al login.
   const renderProtectedRoute = (element) => {
     return isAuthenticated ? element : <Navigate to="/" replace />;
   };
-
+// Configuración de rutas utilizando React Router. Cada ruta está asociada a un componente específico que representa una pantalla de la aplicación. Las rutas protegidas utilizan la función `renderProtectedRoute` para asegurar que solo los usuarios autenticados puedan acceder a ellas.  
   return (
     <BrowserRouter>
       <Routes>
@@ -55,5 +69,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
+/** cada ruta se associa a un componente específico, y se redirige si el usuario no está autenticado */
 export default App;

@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { postJson } from "../../lib/dcimApi";
 import "./Login.css";
-
-// Datos de prueba
-const mockUser = {
-  email: "admin@dcim.local",
-  password: "admin123",
-  name: "Admin User",
-  role: "Administrador"
-};
 
 /**
  * Pantalla de acceso a la aplicación.
@@ -53,27 +46,21 @@ function Login({ onLoginSuccess }) {
     setErrors({});
 
     try {
-      // Validar contra datos falsos
-      // Cuando haya backend real, reemplazar por fetch a /api/auth/login
-      if (email === mockUser.email && password === mockUser.password) {
-        const userData = {
-          email: mockUser.email,
-          name: mockUser.name,
-          role: mockUser.role,
-          token: "fake-jwt-token-" + Date.now(),
-        };
-        console.log("Login exitoso:", userData);
-        // Guardar datos en localStorage
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("token", userData.token);
-        if (onLoginSuccess) onLoginSuccess();
-        // Redirigir al dashboard con React Router
-        navigate("/dashboard");
-      } else {
-        throw new Error("Correo o contraseña incorrectos");
-      }
+      const response = await postJson("/api/auth/login", { email, password });
+      const userData = {
+        ...response.user,
+        name: response.user.full_name,
+        role: response.user.role || "Administrador",
+        token: response.token,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", response.token);
+      window.dispatchEvent(new Event("auth-change"));
+      if (onLoginSuccess) onLoginSuccess(userData);
+      navigate("/dashboard");
     } catch (error) {
-      setErrors({ submit: error.message });
+      setErrors({ submit: error.message || "Error al iniciar sesión" });
     } finally {
       setLoading(false);
     }

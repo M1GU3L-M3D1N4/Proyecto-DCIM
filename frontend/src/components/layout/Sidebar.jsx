@@ -122,6 +122,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 	const handleLogout = () => {
 		localStorage.removeItem("user");
 		localStorage.removeItem("token");
+		window.dispatchEvent(new Event("auth-change"));
 		navigate("/");
 	};
 
@@ -216,8 +217,8 @@ function Sidebar({ theme = "light", mode = "static" }) {
 
 				<div className="sidebar__footer">
 					<div className="sidebar__user">
-						<p className="sidebar__user-name">Administrador</p>
-						<p className="sidebar__user-role">admin@dcim.local</p>
+						<p className="sidebar__user-name">Sesión activa</p>
+						<p className="sidebar__user-role">Backend DCIM</p>
 					</div>
 					<button className="sidebar__logout" onClick={handleLogout} type="button">
 						Salir

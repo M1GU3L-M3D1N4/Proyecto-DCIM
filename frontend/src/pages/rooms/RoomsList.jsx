@@ -1,47 +1,60 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import mockData from "../../data/mockData.json";
-import { buildQueryString, fetchJson } from "../../lib/dcimApi";
+import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./RoomsList.css";
 
-const fallbackRooms = (mockData.rooms || []).map((room) => {
-  const site = (mockData.sites || []).find((item) => String(item.site_id) === String(room.site_id));
-  const racks = (mockData.racks || []).filter((rack) => String(rack.room_id) === String(room.room_id));
-  const occupiedRacks = racks.filter((rack) => (mockData.rack_unit_occupancy || []).some((unit) => String(unit.rack_id) === String(rack.rack_id))).length;
-  const status = racks.length === 0 ? "Disponible" : occupiedRacks === 0 ? "Disponible" : occupiedRacks >= racks.length ? "Llena" : "Operativa";
-
-  return {
-    ...room,
-    site: site?.name ?? "Sin sitio",
-    racks_count: racks.length,
-    occupied_racks: occupiedRacks,
-    status,
-  };
-});
-
 function RoomsList() {
-  const [rooms, setRooms] = useState(fallbackRooms);
+  const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
   const siteId = searchParams.get("site_id");
 
-  useEffect(() => {
-    const loadRooms = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-        const data = await fetchJson(`/api/rooms${buildQueryString({ site_id: siteId })}`, fallbackRooms);
-        setRooms(Array.isArray(data) ? data : fallbackRooms);
-      } catch (loadError) {
-        setRooms(fallbackRooms);
-        setError(loadError.message || "No se pudieron cargar las salas");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadRooms = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      const data = await fetchJson(`/api/rooms${buildQueryString({ site_id: siteId })}`, []);
+      setRooms(Array.isArray(data) ? data : []);
+    } catch (loadError) {
+      setError(loadError.message || "No se pudieron cargar las salas");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const promptRoom = (room = {}) => {
+    const siteValue = window.prompt("ID del sitio", room.site_id || siteId || "");
+    if (siteValue === null) return null;
+    const name = window.prompt("Nombre de la sala", room.name || "");
+    if (name === null) return null;
+    const floor = window.prompt("Piso", room.floor || "");
+    if (floor === null) return null;
+    return { site_id: Number(siteValue), name: name.trim(), floor: floor.trim() };
+  };
+
+  const handleCreate = async () => {
+    const payload = promptRoom();
+    if (!payload) return;
+    await postJson("/api/rooms", payload);
+    await loadRooms();
+  };
+
+  const handleEdit = async (room) => {
+    const payload = promptRoom(room);
+    if (!payload) return;
+    await putJson(`/api/rooms/${room.room_id}`, payload);
+    await loadRooms();
+  };
+
+  const handleDelete = async (room) => {
+    if (!window.confirm(`¿Eliminar la sala ${room.name}?`)) return;
+    await deleteJson(`/api/rooms/${room.room_id}`);
+    await loadRooms();
+  };
+
+  useEffect(() => {
     loadRooms();
   }, [siteId]);
 
@@ -63,6 +76,13 @@ function RoomsList() {
             </div>
 
             <div className="rooms-page__actions">
+              <button type="button" className="rooms-page__create" onClick={handleCreate}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Nueva Sala
+              </button>
               <Link to="/racks" className="rooms-page__create">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 5v14" />
@@ -109,7 +129,7 @@ function RoomsList() {
                     <article key={room.room_id} className="room-card">
                       <div className="room-card__top">
                         <div>
-                          <p className="room-card__site">{room.site}</p>
+                          <p className="room-card__site">{room.site_name}</p>
                           <h2 className="room-card__title">{room.name}</h2>
                         </div>
                         <span className={`room-card__badge room-card__badge--${room.status === "Llena" ? "full" : room.status === "Disponible" ? "free" : "active"}`}>
@@ -146,6 +166,8 @@ function RoomsList() {
                             <path d="M13.5 6.5 17.5 10.5" />
                           </svg>
                         </Link>
+                        <button type="button" className="room-card__btn" onClick={() => handleEdit(room)}>Editar</button>
+                        <button type="button" className="room-card__btn" onClick={() => handleDelete(room)}>Eliminar</button>
                       </div>
                     </article>
                   );

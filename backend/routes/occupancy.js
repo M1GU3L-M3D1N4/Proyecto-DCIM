@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/occupancy');
+const { authenticate } = require('../middlewares/auth');
 
 /*
 	Rutas `rack_unit_occupancy`
@@ -13,5 +14,7 @@ const controller = require('../controllers/occupancy');
 
 router.get('/', controller.list);
 router.get('/rack/:rackId', controller.getByRack);
+router.post('/', authenticate, controller.create);
+router.delete('/rack/:rackId/unit/:unit', authenticate, controller.delete);
 
 module.exports = router;
