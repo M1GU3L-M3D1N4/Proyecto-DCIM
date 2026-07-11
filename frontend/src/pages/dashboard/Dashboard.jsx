@@ -55,7 +55,7 @@ function Dashboard() {
 	return (
 			<div className="app-shell">
 			<div className="app-shell__sidebar">
-				{/* Navegación lateral visible en escritorio. */}
+				{/* Navegación lateral visible en escritorio. */} 	
 				<Sidebar theme="light" />
 			</div>
 			{/* Contenido principal de la pantalla. */}
@@ -69,10 +69,10 @@ function Dashboard() {
 					{/* Encabezado con título y descripción de contexto. */}
 					<div className="dashboard__heading">
 						<h1 className="dashboard__title">
-							Dashboard del DCIM
+							DCIM - Data Center Infrastructure Management 
 						</h1>
 						<p className="dashboard__description">
-							Bienvenido al Dashboard del DCIM
+							
 						</p>
 					</div>
 					{/* Métricas resumidas que sirven como punto de partida visual. */}

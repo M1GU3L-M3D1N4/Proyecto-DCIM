@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import VendorEditForm from "./VendorEditForm";
 import "./VendorsList.css";
 
 /**
@@ -16,6 +17,8 @@ function VendorsList() {
   const [vendors, setVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
 
   const loadVendors = async () => {
     setIsLoading(true);
@@ -30,25 +33,18 @@ function VendorsList() {
     }
   };
 
-  const promptVendor = (vendor = {}) => {
-    const name = window.prompt("Nombre del fabricante", vendor.name || "");
-    if (name === null) return null;
-    const supportUrl = window.prompt("URL de soporte", vendor.support_url || "");
-    if (supportUrl === null) return null;
-    return { name: name.trim(), support_url: supportUrl.trim() };
-  };
-
   const handleCreate = async () => {
-    const payload = promptVendor();
-    if (!payload) return;
-    await postJson("/api/vendors", payload);
-    await loadVendors();
+    setEditingVendor({ name: "", support_url: "" });
+    setIsEditing(true);
   };
 
   const handleEdit = async (vendor) => {
-    const payload = promptVendor(vendor);
-    if (!payload) return;
-    await putJson(`/api/vendors/${vendor.vendor_id}`, payload);
+    setEditingVendor(vendor);
+    setIsEditing(true);
+  };
+
+  const handleSaveVendor = async () => {
+    setIsEditing(false);
     await loadVendors();
   };
 
@@ -124,6 +120,18 @@ function VendorsList() {
               </article>
             ))}
           </div>
+
+          {isEditing && editingVendor && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <VendorEditForm
+                  vendor={editingVendor}
+                  onSave={handleSaveVendor}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

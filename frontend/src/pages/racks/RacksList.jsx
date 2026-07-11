@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import RackEditForm from "./RackEditForm";
 import "./RacksList.css";
 
 function RacksList() {
   const [racks, setRacks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingRack, setEditingRack] = useState(null);
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("room_id");
 
@@ -25,27 +28,18 @@ function RacksList() {
     }
   };
 
-  const promptRack = (rack = {}) => {
-    const roomValue = window.prompt("ID de la sala", rack.room_id || roomId || "");
-    if (roomValue === null) return null;
-    const code = window.prompt("Código del rack", rack.code || "");
-    if (code === null) return null;
-    const totalU = window.prompt("Capacidad total U", rack.total_u || "42");
-    if (totalU === null) return null;
-    return { room_id: Number(roomValue), code: code.trim(), total_u: Number(totalU) };
-  };
-
   const handleCreate = async () => {
-    const payload = promptRack();
-    if (!payload) return;
-    await postJson("/api/racks", payload);
-    await loadRacks();
+    setEditingRack({ room_id: roomId || "", code: "", total_u: "42" });
+    setIsEditing(true);
   };
 
   const handleEdit = async (rack) => {
-    const payload = promptRack(rack);
-    if (!payload) return;
-    await putJson(`/api/racks/${rack.rack_id}`, payload);
+    setEditingRack(rack);
+    setIsEditing(true);
+  };
+
+  const handleSaveRack = async () => {
+    setIsEditing(false);
     await loadRacks();
   };
 
@@ -175,6 +169,18 @@ function RacksList() {
               </div>
             )}
           </div>
+
+          {isEditing && editingRack && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <RackEditForm
+                  rack={editingRack}
+                  onSave={handleSaveRack}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

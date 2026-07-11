@@ -2,12 +2,15 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import ModelEditForm from "./ModelEditForm";
 import "./ModelsList.css";
 
 function ModelsList() {
   const [models, setModels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingModel, setEditingModel] = useState(null);
 
   const loadModels = async () => {
     setIsLoading(true);
@@ -22,29 +25,18 @@ function ModelsList() {
     }
   };
 
-  const promptModel = (model = {}) => {
-    const vendorId = window.prompt("ID del fabricante", model.vendor_id || "");
-    if (vendorId === null) return null;
-    const modelName = window.prompt("Nombre del modelo", model.model_name || "");
-    if (modelName === null) return null;
-    const deviceType = window.prompt("Tipo de dispositivo (server, switch, router, firewall, storage, ups, pdu, other)", model.device_type || "other");
-    if (deviceType === null) return null;
-    const height = window.prompt("Altura U", model.u_height || "1");
-    if (height === null) return null;
-    return { vendor_id: Number(vendorId), model_name: modelName.trim(), device_type: deviceType.trim(), u_height: Number(height) };
-  };
-
   const handleCreate = async () => {
-    const payload = promptModel();
-    if (!payload) return;
-    await postJson("/api/models", payload);
-    await loadModels();
+    setEditingModel({ vendor_id: "", model_name: "", device_type: "other", u_height: "1" });
+    setIsEditing(true);
   };
 
   const handleEdit = async (model) => {
-    const payload = promptModel(model);
-    if (!payload) return;
-    await putJson(`/api/models/${model.model_id}`, payload);
+    setEditingModel(model);
+    setIsEditing(true);
+  };
+
+  const handleSaveModel = async () => {
+    setIsEditing(false);
     await loadModels();
   };
 
@@ -121,6 +113,18 @@ function ModelsList() {
               </article>
             ))}
           </div>
+
+          {isEditing && editingModel && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <ModelEditForm
+                  model={editingModel}
+                  onSave={handleSaveModel}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

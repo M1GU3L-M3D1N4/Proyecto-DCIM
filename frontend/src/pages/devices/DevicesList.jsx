@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import DeviceEditForm from "./DeviceEditForm";
 import "./DevicesList.css";
 
 function DevicesList() {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingDevice, setEditingDevice] = useState(null);
   const [searchParams] = useSearchParams();
   const rackId = searchParams.get("rack_id");
   const modelId = searchParams.get("model_id");
@@ -30,46 +33,27 @@ function DevicesList() {
     }
   };
 
-  const promptDevice = (device = {}) => {
-    const modelValue = window.prompt("ID del modelo", device.model_id || modelId || "");
-    if (modelValue === null) return null;
-    const name = window.prompt("Nombre del equipo", device.name || "");
-    if (name === null) return null;
-    const assetTag = window.prompt("Asset tag", device.asset_tag || "");
-    if (assetTag === null) return null;
-    const serial = window.prompt("Serial", device.serial_number || "");
-    if (serial === null) return null;
-    const rackValue = window.prompt("ID del rack (opcional)", device.rack_id || rackId || "");
-    if (rackValue === null) return null;
-    const uStart = window.prompt("Posición U (opcional)", device.u_start || "");
-    if (uStart === null) return null;
-    const deviceStatus = window.prompt("Estado (active, maintenance, retired)", device.status || "active");
-    if (deviceStatus === null) return null;
-    const installedAt = window.prompt("Fecha de instalación YYYY-MM-DD", device.installed_at || "");
-    if (installedAt === null) return null;
-    return {
-      model_id: Number(modelValue),
-      name: name.trim(),
-      asset_tag: assetTag.trim() || null,
-      serial_number: serial.trim() || null,
-      rack_id: rackValue ? Number(rackValue) : null,
-      u_start: uStart ? Number(uStart) : null,
-      status: deviceStatus.trim(),
-      installed_at: installedAt.trim() || null,
-    };
-  };
-
   const handleCreate = async () => {
-    const payload = promptDevice();
-    if (!payload) return;
-    await postJson("/api/devices", payload);
-    await loadDevices();
+    setEditingDevice({
+      model_id: modelId || "",
+      name: "",
+      asset_tag: "",
+      serial_number: "",
+      rack_id: rackId || "",
+      u_start: "",
+      status: "active",
+      installed_at: "",
+    });
+    setIsEditing(true);
   };
 
   const handleEdit = async (device) => {
-    const payload = promptDevice(device);
-    if (!payload) return;
-    await putJson(`/api/devices/${device.device_id}`, payload);
+    setEditingDevice(device);
+    setIsEditing(true);
+  };
+
+  const handleSaveDevice = async () => {
+    setIsEditing(false);
     await loadDevices();
   };
 
@@ -205,6 +189,19 @@ function DevicesList() {
               </table>
             )}
           </div>
+
+          {isEditing && editingDevice && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <DeviceEditForm
+                  device={editingDevice}
+                  isCreating={!editingDevice.device_id}
+                  onSave={handleSaveDevice}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

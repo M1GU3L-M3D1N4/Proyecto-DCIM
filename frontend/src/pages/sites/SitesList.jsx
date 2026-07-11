@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import SiteEditForm from "./SiteEditForm";
 import "./SitesList.css";
 
 function SitesList() {
   const [sites, setSites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingSite, setEditingSite] = useState(null);
 
   const loadSites = async () => {
     setIsLoading(true);
@@ -22,27 +25,18 @@ function SitesList() {
     }
   };
 
-  const promptSite = (site = {}) => {
-    const name = window.prompt("Nombre del sitio", site.name || "");
-    if (name === null) return null;
-    const city = window.prompt("Ciudad", site.city || "");
-    if (city === null) return null;
-    const address = window.prompt("Dirección", site.address || "");
-    if (address === null) return null;
-    return { name: name.trim(), city: city.trim(), address: address.trim() };
-  };
-
   const handleCreate = async () => {
-    const payload = promptSite();
-    if (!payload) return;
-    await postJson("/api/sites", payload);
-    await loadSites();
+    setEditingSite({ name: "", city: "", address: "" });
+    setIsEditing(true);
   };
 
   const handleEdit = async (site) => {
-    const payload = promptSite(site);
-    if (!payload) return;
-    await putJson(`/api/sites/${site.site_id}`, payload);
+    setEditingSite(site);
+    setIsEditing(true);
+  };
+
+  const handleSaveSite = async () => {
+    setIsEditing(false);
     await loadSites();
   };
 
@@ -141,6 +135,18 @@ function SitesList() {
               </table>
             )}
           </div>
+
+          {isEditing && editingSite && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <SiteEditForm
+                  site={editingSite}
+                  onSave={handleSaveSite}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

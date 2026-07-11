@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { putJson } from "../../lib/dcimApi";
+import { useEffect, useState } from "react";
+import { fetchJson, putJson } from "../../lib/dcimApi";
 
 export default function ModelEditForm({ model, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -10,6 +10,15 @@ export default function ModelEditForm({ model, onSave, onCancel }) {
   });
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [vendors, setVendors] = useState([]);
+
+  useEffect(() => {
+    const loadVendors = async () => {
+      const data = await fetchJson("/api/vendors", []);
+      setVendors(Array.isArray(data) ? data : []);
+    };
+    loadVendors();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,14 +55,20 @@ export default function ModelEditForm({ model, onSave, onCancel }) {
         {error && <div className="model-detail-error">{error}</div>}
 
         <div className="form-group">
-          <label>ID del fabricante *</label>
-          <input
-            type="number"
+          <label>Fabricante *</label>
+          <select
             name="vendor_id"
             value={formData.vendor_id}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Selecciona un fabricante</option>
+            {vendors.map((vendor) => (
+              <option key={vendor.vendor_id} value={vendor.vendor_id}>
+                {vendor.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">

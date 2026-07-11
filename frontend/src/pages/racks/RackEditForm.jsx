@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { putJson } from "../../lib/dcimApi";
+import { useEffect, useState } from "react";
+import { fetchJson, putJson } from "../../lib/dcimApi";
 import "./RackDetail.css";
 
 export default function RackEditForm({ rack, onSave, onCancel }) {
@@ -10,6 +10,15 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
   });
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    const loadRooms = async () => {
+      const data = await fetchJson("/api/rooms", []);
+      setRooms(Array.isArray(data) ? data : []);
+    };
+    loadRooms();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,14 +54,20 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
         {error && <div className="rack-detail-error">{error}</div>}
 
         <div className="form-group">
-          <label>ID de la sala *</label>
-          <input
-            type="number"
+          <label>Sala *</label>
+          <select
             name="room_id"
             value={formData.room_id}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Selecciona una sala</option>
+            {rooms.map((room) => (
+              <option key={room.room_id} value={room.room_id}>
+                {room.name} (Piso {room.floor})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { fetchJson, putJson } from "../../lib/dcimApi";
+import { fetchJson, putJson, postJson } from "../../lib/dcimApi";
 import "./DeviceDetail.css";
 
-export default function DeviceEditForm({ device, onSave, onCancel }) {
+export default function DeviceEditForm({ device, isCreating, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     model_id: device.model_id || "",
     name: device.name || "",
@@ -50,7 +50,11 @@ export default function DeviceEditForm({ device, onSave, onCancel }) {
         u_start: formData.u_start ? Number(formData.u_start) : null,
       };
 
-      await putJson(`/api/devices/${device.device_id}`, payload);
+      if (isCreating) {
+        await postJson("/api/devices", payload);
+      } else {
+        await putJson(`/api/devices/${device.device_id}`, payload);
+      }
       onSave();
     } catch (err) {
       setError(err.message || "Error al guardar");
@@ -62,7 +66,7 @@ export default function DeviceEditForm({ device, onSave, onCancel }) {
   return (
     <form className="device-detail-form" onSubmit={handleSubmit}>
       <fieldset className="device-detail-fieldset">
-        <legend>Editar equipo</legend>
+        <legend>{isCreating ? "Nuevo equipo" : "Editar equipo"}</legend>
 
         {error && <div className="device-detail-error">{error}</div>}
 

@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
+import RoomEditForm from "./RoomEditForm";
 import "./RoomsList.css";
 
 function RoomsList() {
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingRoom, setEditingRoom] = useState(null);
   const [searchParams] = useSearchParams();
   const siteId = searchParams.get("site_id");
 
@@ -24,27 +27,18 @@ function RoomsList() {
     }
   };
 
-  const promptRoom = (room = {}) => {
-    const siteValue = window.prompt("ID del sitio", room.site_id || siteId || "");
-    if (siteValue === null) return null;
-    const name = window.prompt("Nombre de la sala", room.name || "");
-    if (name === null) return null;
-    const floor = window.prompt("Piso", room.floor || "");
-    if (floor === null) return null;
-    return { site_id: Number(siteValue), name: name.trim(), floor: floor.trim() };
-  };
-
   const handleCreate = async () => {
-    const payload = promptRoom();
-    if (!payload) return;
-    await postJson("/api/rooms", payload);
-    await loadRooms();
+    setEditingRoom({ site_id: siteId || "", name: "", floor: "" });
+    setIsEditing(true);
   };
 
   const handleEdit = async (room) => {
-    const payload = promptRoom(room);
-    if (!payload) return;
-    await putJson(`/api/rooms/${room.room_id}`, payload);
+    setEditingRoom(room);
+    setIsEditing(true);
+  };
+
+  const handleSaveRoom = async () => {
+    setIsEditing(false);
     await loadRooms();
   };
 
@@ -175,6 +169,19 @@ function RoomsList() {
               </div>
             )}
           </div>
+
+          {isEditing && editingRoom && (
+            <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <RoomEditForm
+                  room={editingRoom}
+                  siteId={siteId}
+                  onSave={handleSaveRoom}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

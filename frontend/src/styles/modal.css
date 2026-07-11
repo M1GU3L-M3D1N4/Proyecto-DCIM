@@ -1,0 +1,209 @@
+/* El modal-overlay define el estilo de la superposición del modal, 
+incluyendo la posición, el tamaño, el color de fondo, la alineación y la animación. 
+esto afecta el comportamiento del modal cuando se muestra o se oculta. */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+}
+
+/* esta sección define la animación de desvanecimiento para la superposición del modal, 
+haciendo que aparezca suavemente cuando se muestra. */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* El modal es el contenedor principal del contenido del formulario, y se centra en la pantalla 
+con un alto z-index para asegurarse de que esté por encima de otros elementos. en pocas palabras en el modal 
+es donde se muestran todos los formularios que se estan renderizando. */
+
+
+/*esta seccion define el estilo del diálogo del modal  */
+.modal-dialog {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* esta sección define la animación de deslizamiento hacia arriba para el diálogo del modal,
+ haciendo que aparezca suavemente desde la parte inferior de la pantalla cuando se muestra. */
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* El form-group define el estilo para los grupos de campos en el formulario */
+.form-group {
+  margin-bottom: 16px;
+}
+/* el form-group label define el estilo para las etiquetas de los campos del formulario, 
+incluyendo la visualización, el peso de la fuente, el margen inferior y el color del texto. */
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* estos 3 form-group input, form-group select y form-group textarea definen el estilo para los campos de entrada,
+  selección y área de texto del formulario, incluyendo el ancho, el relleno, el borde, el radio del borde,
+  el tamaño de la fuente, la familia de fuentes y el box-sizing. */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* estos 3 form-group input:focus, form-group select:focus y form-group textarea:focus definen el estilo para los campos de entrada,
+ selección y área de texto del formulario cuando están enfocados, incluyendo la eliminación del contorno,
+ el cambio del color del borde y la adición de una sombra alrededor del campo. */
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* El form-actions define el estilo para las acciones del formulario,
+las acciones son los botones de envío y cancelación */
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Estos form-submit y form-cancel definen el estilo de los botones de envío y cancelación del formulario,
+ incluyendo el tamaño, el relleno, el borde, el radio del borde, el peso de la fuente, el tamaño de la fuente, 
+ el cursor y la transición.*/
+
+.form-submit,
+.form-cancel {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+/* El form-submit define el estilo del botón de envío del formulario, 
+incluyendo el color de fondo y el color del texto. */
+
+.form-submit {
+  background-color: #2563eb;
+  color: white;
+}
+/* El form-submit:hover cambia el color de fondo del botón de envío cuando el usuario pasa el
+cursor sobre él, proporcionando retroalimentación visual. */
+.form-submit:hover {
+  background-color: #1d4ed8;
+}
+
+/* El form-cancel define el estilo del botón de cancelación del formulario, 
+incluyendo el color de fondo y el color del texto. */
+.form-cancel {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
+/* El form-cancel:hover cambia el color de fondo del botón de cancelación cuando el usuario pasa el 
+cursor sobre él, proporcionando retroalimentación visual. */
+.form-cancel:hover {
+  background-color: #d1d5db;
+}
+
+/* La seccion del codigo que sigue a continuación define estilos para los botones de envío 
+y cancelación del formulario, añadiendo un efecto de opacidad y cursor deshabilitado cuando están desactivados. */
+.form-submit:disabled,
+.form-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Esta sección define estilos para los mensajes de error en los detalles del 
+dispositivo, modelo, rack, sala y sitio */
+.device-detail-error,
+.model-detail-error,
+.rack-detail-error,
+.room-detail-error,
+.site-detail-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+/* Estos 2 fieldsets se utilizan para agrupar campos relacionados en el formulario como en este caso 
+los campos de detalles del dispositivo y los campos de detalles del modelo */
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+fieldset:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+/* El legend se utiliza para proporcionar un título o descripción 
+para un grupo de campos dentro de un formulario. En este caso, 
+se ha estilizado para que tenga un tamaño de fuente de 18px, 
+un peso de fuente de 700 (negrita), un margen inferior de 16px y
+un color de texto #1f2937. Además, se ha eliminado el padding para que 
+no afecte al diseño del formulario. */
+legend {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1f2937;
+  padding: 0;
+}
+
+/*
+Este CSS pertenece a un modal que contiene un formulario para crear o editar detalles de 
+dispositivos, modelos, racks, salas y sitios. Incluye estilos para la superposición del modal, 
+el diálogo del modal, los grupos de formularios, las acciones del formulario y los mensajes de error. 
+También se incluyen animaciones para la aparición del modal y el desplazamiento hacia arriba del diálogo.
+*/
+
+/* El css esta vinculado al componente ModalForm.jsx, que es el encargado de renderizar el modal y 
+el formulario dentro de él ubicado en la ruta ./components/ModalForm.jsx. */
