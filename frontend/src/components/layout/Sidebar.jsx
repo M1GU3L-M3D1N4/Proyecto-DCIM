@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
@@ -106,18 +106,56 @@ const navigationSections = [
 function Sidebar({ theme = "light", mode = "static" }) {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(mode !== "drawer");
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [user, setUser] = useState(null);
+	const [isLoadingUser, setIsLoadingUser] = useState(true);
+	const [userError, setUserError] = useState("");
 	const navigate = useNavigate();
 
-	// Leer datos del usuario desde localStorage (opcional, solo para mostrar
-	// información si está disponible). Fallos en parseo se silencian.
-	const user = (() => {
-		try {
-			const raw = localStorage.getItem("user");
-			return raw ? JSON.parse(raw) : null;
-		} catch (e) {
-			return null;
-		}
-	})();
+	useEffect(() => {
+		let isMounted = true;
+
+		const loadUser = async () => {
+			const token = localStorage.getItem("token");
+
+			if (!token) {
+				if (!isMounted) return;
+				setUser(null);
+				setUserError("Sesión no disponible");
+				setIsLoadingUser(false);
+				return;
+			}
+
+			try {
+				const response = await fetch("/api/auth/me", {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (!response.ok) {
+					throw new Error("No se pudo cargar el usuario");
+				}
+
+				const data = await response.json();
+				if (!isMounted) return;
+				setUser(data);
+				setUserError("");
+			} catch (error) {
+				if (!isMounted) return;
+				setUser(null);
+				setUserError("No se pudo cargar el usuario");
+			} finally {
+				if (!isMounted) return;
+				setIsLoadingUser(false);
+			}
+		};
+
+		loadUser();
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const handleLogout = () => {
 		localStorage.removeItem("user");
@@ -217,8 +255,19 @@ function Sidebar({ theme = "light", mode = "static" }) {
 
 				<div className="sidebar__footer">
 					<div className="sidebar__user">
-						<p className="sidebar__user-name">Sesión activa</p>
-						<p className="sidebar__user-role">Backend DCIM</p>
+						<div className="sidebar__user-avatar">
+							{isLoadingUser
+							? "..."
+							: user?.full_name
+							? user.full_name.charAt(0).toUpperCase()
+							: "U"}
+						</div>
+						<p className="sidebar__user-name">
+							{isLoadingUser ? "Cargando..." : user?.full_name || userError || "Sesión activa"}
+						</p>
+						<p className="sidebar__user-role">
+							{isLoadingUser ? "" : user ? user.job_title || user.username || user.email || "" : ""}
+						</p>
 					</div>
 					<button className="sidebar__logout" onClick={handleLogout} type="button">
 						Salir

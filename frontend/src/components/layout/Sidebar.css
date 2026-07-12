@@ -279,6 +279,8 @@
 .sidebar--light .sidebar__footer {
   background: transparent;
   border-color: rgba(219, 229, 241, 0.35);
+
+
 }
 
 .sidebar__logout {
@@ -307,18 +309,47 @@
 .sidebar__user {
   display: flex;
   flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebar__user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  margin-bottom: 0.35rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #f8fbff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+}
+
+.sidebar__user-initials {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
 }
 
 .sidebar__user-name {
   margin: 0;
   font-weight: 700;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__user-role {
   margin: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar--light .sidebar__user-name {
@@ -397,3 +428,4 @@
     width: 17rem;
   }
 }
+ 

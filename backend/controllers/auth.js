@@ -72,6 +72,7 @@ exports.login = async (req, res) => {
         username: user.username, // Nombre de usuario
         email: user.email, // Email
         full_name: user.full_name, // Nombre completo
+        job_title: user.job_title || '', // Título del trabajo 
       },
       process.env.JWT_SECRET || 'dev-secret-key', // Clave secreta para firmar el token
       { expiresIn: '8h' } // El token expira en 8 horas
@@ -86,6 +87,7 @@ exports.login = async (req, res) => {
         email: user.email,
         full_name: user.full_name,
         active: Boolean(user.active), // Convertir a booleano
+        job_title: user.job_title || '', // Título del trabajo,
       },
     });
   } catch (error) {
@@ -107,7 +109,6 @@ exports.login = async (req, res) => {
  */
 exports.me = async (req, res) => {
   try {
-    // req.user viene del middleware authenticate, contiene datos decodificados del JWT
     const user = await repository.getUserById(req.user.user_id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
@@ -117,7 +118,7 @@ exports.me = async (req, res) => {
       email: user.email,
       full_name: user.full_name,
       active: Boolean(user.active),
-      created_at: user.created_at, // Fecha de creación del usuario
+      job_title: user.job_title || '',
     });
   } catch (error) {
     return res.status(500).json({ error: 'Error al obtener perfil', details: error.message });

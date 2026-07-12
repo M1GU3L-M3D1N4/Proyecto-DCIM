@@ -75,7 +75,7 @@ function RackDetail() {
     );
   }
 
-  const usedUnits = rack.used_units ?? 0;
+  const usedUnits = rack.used_units ?? 7;
   const occupancy = rack.used_percent ?? 0;
   const siteName = rack.site_name ?? "Sin sitio";
   const roomName = rack.room_name ?? "Sin sala";

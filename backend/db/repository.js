@@ -326,6 +326,9 @@ exports.getUserByEmail = async (email) => {
 };
 
 exports.getUserById = async (id) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE user_id = ? LIMIT 1', [id]);
+  const [rows] = await pool.query(
+    'SELECT user_id, username, full_name, email, active, job_title FROM users WHERE user_id = ? LIMIT 1',
+    [id]
+  );
   return rows[0] || null;
 };

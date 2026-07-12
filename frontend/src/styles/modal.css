@@ -205,5 +205,7 @@ el diálogo del modal, los grupos de formularios, las acciones del formulario y 
 También se incluyen animaciones para la aparición del modal y el desplazamiento hacia arriba del diálogo.
 */
 
-/* El css esta vinculado al componente ModalForm.jsx, que es el encargado de renderizar el modal y 
-el formulario dentro de él ubicado en la ruta ./components/ModalForm.jsx. */
+/* El css esta vinculado se importa desde los archivos de formularios de detalles de dispositivo, modelo, rack, sala y sitio. 
+en los archivos modelDetailForm.js, deviceDetailForm.js, rackDetailForm.js, roomDetailForm.js y siteDetailForm.js.
+cada uno de estos archivos importa el css para aplicar los estilos al modal y al formulario correspondiente. */
+
