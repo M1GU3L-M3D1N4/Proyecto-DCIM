@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
+import Pagination from "../../components/Pagination";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import SiteEditForm from "./SiteEditForm";
 import "./SitesList.css";
+
+const ITEMS_PER_PAGE = 8;
 
 function SitesList() {
   const [sites, setSites] = useState([]);
@@ -11,6 +14,7 @@ function SitesList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingSite, setEditingSite] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const loadSites = async () => {
     setIsLoading(true);
@@ -49,6 +53,14 @@ function SitesList() {
   useEffect(() => {
     loadSites();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sites.length]);
+
+  const totalPages = Math.max(1, Math.ceil(sites.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedSites = sites.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <div className="sites-page">
@@ -100,7 +112,7 @@ function SitesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sites.map((site) => (
+                  {paginatedSites.map((site) => (
                     <tr key={site.site_id}>
                       <td className="sites-table__name">{site.name}</td>
                       <td>{site.city}</td>
@@ -134,6 +146,13 @@ function SitesList() {
                 </tbody>
               </table>
             )}
+
+            <Pagination
+              totalItems={sites.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={safePage}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {isEditing && editingSite && (

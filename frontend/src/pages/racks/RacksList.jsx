@@ -2,9 +2,12 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
+import Pagination from "../../components/Pagination";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import RackEditForm from "./RackEditForm";
 import "./RacksList.css";
+
+const ITEMS_PER_PAGE = 8;
 
 function RacksList() {
   const [racks, setRacks] = useState([]);
@@ -12,8 +15,10 @@ function RacksList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingRack, setEditingRack] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("room_id");
+  const roomNameParam = searchParams.get("room_name");
 
   const loadRacks = async () => {
     try {
@@ -53,10 +58,18 @@ function RacksList() {
     loadRacks();
   }, [roomId]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [roomId, racks.length]);
+
   const totalRacks = racks.length;
   const totalU = racks.reduce((sum, rack) => sum + (rack.total_u || 0), 0);
   const usedUnits = racks.reduce((sum, rack) => sum + (rack.used_units || 0), 0);
   const availableUnits = Math.max(totalU - usedUnits, 0);
+  const roomName = roomNameParam || racks[0]?.room_name || "";
+  const totalPages = Math.max(1, Math.ceil(racks.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedRacks = racks.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <div className="racks-page">
@@ -69,6 +82,7 @@ function RacksList() {
               <p className="racks-page__eyebrow">Racks</p>
               <h1 className="racks-page__title">Racks</h1>
               <p className="racks-page__subtitle">Gestiona la capacidad física y el inventario alojado</p>
+              {roomName ? <p className="racks-page__room-name">{roomName}</p> : null}
             </div>
 
             <div className="racks-page__actions">
@@ -88,8 +102,6 @@ function RacksList() {
               </Link>
             </div>
           </header>
-
-          {roomId ? <div className="racks-page__note">Filtrando por sala #{roomId}.</div> : null}
 
           <div className="racks-page__stats">
             <div className="racks-stat-card">
@@ -118,7 +130,7 @@ function RacksList() {
               <div className="racks-page__empty">Todavía no hay racks para mostrar.</div>
             ) : (
               <div className="racks-grid">
-                {racks.map((rack) => (
+                {paginatedRacks.map((rack) => (
                   <article key={rack.rack_id} className="rack-card">
                     <div className="rack-card__top">
                       <div>
@@ -168,6 +180,13 @@ function RacksList() {
                 ))}
               </div>
             )}
+
+            <Pagination
+              totalItems={racks.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={safePage}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {isEditing && editingRack && (

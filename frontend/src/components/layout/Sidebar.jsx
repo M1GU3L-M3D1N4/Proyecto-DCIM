@@ -11,28 +11,28 @@ const navigationSections = [
 			{
 				to: "/dashboard",
 				label: "Dashboard",
-				icon: (<img src="public/icons/dashboard.svg" alt="Dashboard" />),
+				icon: (<img src="/icons/dashboard.svg" alt="Dashboard" />),
 			},
 			{
 				to: "/sites",
 				label: "Sitios",
-				icon: (<img src="public/icons/sites.svg" alt="Sitios" />
+				icon: (<img src="/icons/sites.svg" alt="Sitios" />
 				),
 			},
 			{
 				to: "/rooms",
 				label: "Salas",
-				icon: (<img src="public/icons/rooms.svg" alt="Salas" />),
+				icon: (<img src="/icons/rooms.svg" alt="Salas" />),
 			},
 			{
 				to: "/racks",
 				label: "Racks",
-				icon: (<img src="public/icons/racks.svg" alt="Racks" />),
+				icon: (<img src="/icons/racks.svg" alt="Racks" />),
 			},
 			{
 				to: "/devices",
 				label: "Equipos",
-				icon: (<img src="public/icons/devices.svg" alt="Equipos" />),
+				icon: (<img src="/icons/devices.svg" alt="Equipos" />),
 			},
 		],
 	},
@@ -42,12 +42,12 @@ const navigationSections = [
 			{
 				to: "/vendors",
 				label: "Fabricantes",
-				icon: (<img src="public/icons/vendors.svg" alt="Fabricantes" />),
+				icon: (<img src="/icons/vendors.svg" alt="Fabricantes" />),
 			},
 			{
 				to: "/models",
 				label: "Modelos",
-				icon: (<img src="public/icons/models.svg" alt="Modelos" />),
+				icon: (<img src="/icons/models.svg" alt="Modelos" />),
 			},
 		],
 	},
@@ -160,7 +160,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 				<div className="sidebar__brand">
 					<div className="sidebar__brand-main">
 						<div className="sidebar__logo">
-							<img src="public/icons/dcim.svg" alt="Logo DCIM" className="sidebar__logo-icon"/>			
+							<img src="/icons/dcim.svg" alt="Logo DCIM" className="sidebar__logo-icon"/>			
 						</div>
 						<div className="sidebar__brand-text">
 							<p className="sidebar__title">DCIM System</p>

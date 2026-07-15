@@ -3,7 +3,28 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import { fetchJson } from "../../lib/dcimApi";
 import RackEditForm from "./RackEditForm";
+import DeviceEditForm from "../devices/DeviceEditForm";
 import "./RackDetail.css";
+
+const statusLabels = {
+  active: "Activo",
+  maintenance: "Mantenimiento",
+  retired: "Retirado",
+};
+
+const sortDevicesByUnit = (items = []) => {
+  return [...items].sort((a, b) => {
+    const aUnit = Number(a?.u_start);
+    const bUnit = Number(b?.u_start);
+    const aValid = Number.isFinite(aUnit);
+    const bValid = Number.isFinite(bUnit);
+
+    if (aValid && bValid) return aUnit - bUnit;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return 0;
+  });
+};
 
 function RackDetail() {
   const { id } = useParams();
@@ -12,6 +33,8 @@ function RackDetail() {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingDevice, setIsEditingDevice] = useState(false);
+  const [editingDevice, setEditingDevice] = useState(null);
 
   const loadRack = async () => {
     setIsLoading(true);
@@ -28,6 +51,17 @@ function RackDetail() {
 
   const handleSaveRack = async () => {
     setIsEditing(false);
+    await loadRack();
+  };
+
+  const handleEditDevice = (device) => {
+    setEditingDevice(device);
+    setIsEditingDevice(true);
+  };
+
+  const handleSaveDevice = async () => {
+    setIsEditingDevice(false);
+    setEditingDevice(null);
     await loadRack();
   };
 
@@ -80,6 +114,7 @@ function RackDetail() {
   const siteName = rack.site_name ?? "Sin sitio";
   const roomName = rack.room_name ?? "Sin sala";
   const roomFloor = rack.floor ?? rack.room_floor ?? "N/D";
+  const sortedDevices = sortDevicesByUnit(devices);
 
   return (
     <div className="rack-detail-page">
@@ -96,7 +131,15 @@ function RackDetail() {
             </div>
 
             <div className="rack-detail-page__actions">
-                    <button type="button" onClick={() => setIsEditing(true)} className="rack-detail-page__primary">Editar rack</button>
+              <button type="button" onClick={() => setIsEditing(true)} className="rack-detail-page__primary">Editar rack</button>
+              <a
+                href={`/api/racks/${rack.rack_id}/pdf`}
+                className="rack-detail-page__secondary"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Exportar PDF
+              </a>
               <Link to="/devices" className="rack-detail-page__secondary">Ver equipos</Link>
             </div>
           </header>
@@ -161,15 +204,27 @@ function RackDetail() {
                       <th>Modelo</th>
                       <th>Posición</th>
                       <th>Estado</th>
+                      <th style={{ textAlign: "right" }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {devices.map((device) => (
+                    {sortedDevices.map((device) => (
                       <tr key={device.device_id}>
                         <td>{device.name}</td>
                         <td>{device.model?.model_name ?? device.model_name ?? "Sin modelo"}</td>
                         <td>U {device.u_start ?? "N/D"}</td>
-                        <td>{device.status}</td>
+                        <td>{statusLabels[device.status] ?? device.status}</td>
+                        <td>
+                          <div className="rack-detail-table__actions">
+                            <button
+                              type="button"
+                              className="rack-detail-table__edit"
+                              onClick={() => handleEditDevice(device)}
+                            >
+                              Editar
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -177,6 +232,22 @@ function RackDetail() {
               )}
             </div>
           </article>
+
+          {isEditingDevice && editingDevice ? (
+            <div className="modal-overlay" onClick={() => setIsEditingDevice(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <DeviceEditForm
+                  device={editingDevice}
+                  isCreating={false}
+                  onSave={handleSaveDevice}
+                  onCancel={() => {
+                    setIsEditingDevice(false);
+                    setEditingDevice(null);
+                  }}
+                />
+              </div>
+            </div>
+          ) : null}
         </section>
       </main>
     </div>

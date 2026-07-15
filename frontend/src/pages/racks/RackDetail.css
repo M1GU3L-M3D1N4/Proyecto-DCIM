@@ -213,6 +213,27 @@
   color: #0f172a;
 }
 
+.rack-detail-table__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rack-detail-table__edit {
+  height: 2.2rem;
+  padding: 0 0.9rem;
+  border: 1px solid #d8e2f0;
+  border-radius: 0.7rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rack-detail-table__edit:hover {
+  background: #f8fbff;
+  border-color: #c3d5ee;
+}
+
 .rack-detail-page__empty {
   padding: 2rem 1.25rem;
   text-align: center;

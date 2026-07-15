@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
+import Pagination from "../../components/Pagination";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import VendorEditForm from "./VendorEditForm";
 import "./VendorsList.css";
+
+const ITEMS_PER_PAGE = 8;
 
 /**
  * Pantalla de listado de fabricantes (vendors).
@@ -19,6 +22,7 @@ function VendorsList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const loadVendors = async () => {
     setIsLoading(true);
@@ -58,8 +62,15 @@ function VendorsList() {
     loadVendors();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [vendors.length]);
+
   const totalModels = vendors.reduce((sum, vendor) => sum + (vendor.models_count || 0), 0);
   const totalDevices = vendors.reduce((sum, vendor) => sum + (vendor.devices_count || 0), 0);
+  const totalPages = Math.max(1, Math.ceil(vendors.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedVendors = vendors.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <div className="catalog-page">
@@ -98,7 +109,7 @@ function VendorsList() {
           </div>
 
           <div className="catalog-grid">
-            {vendors.map((vendor) => (
+            {paginatedVendors.map((vendor) => (
               <article key={vendor.vendor_id} className="catalog-card">
                 <div>
                   <p className="catalog-card__eyebrow">Fabricante</p>
@@ -120,6 +131,13 @@ function VendorsList() {
               </article>
             ))}
           </div>
+
+          <Pagination
+            totalItems={vendors.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            currentPage={safePage}
+            onPageChange={setCurrentPage}
+          />
 
           {isEditing && editingVendor && (
             <div className="modal-overlay" onClick={() => setIsEditing(false)}>
