@@ -167,22 +167,20 @@ function Sidebar({ theme = "light", mode = "static" }) {
 							<p className="sidebar__subtitle">Gestión de Datacenter</p>
 						</div>
 					</div>
-					{mode === "static" ? (
-						<button
-	type="button"
-	className="sidebar__collapse"
-	onClick={() => setIsCollapsed((value) => !value)}
-	aria-label={isCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
-	aria-pressed={isCollapsed}
->
-	<img
-		src={isCollapsed ? "/icons/chevron-right.svg" : "/icons/chevron-left.svg"}
-		alt=""
-		aria-hidden="true"
-		className="sidebar__collapse-icon"
-	/>
-</button>
-					) : null}
+					<button
+						type="button"
+						className="sidebar__collapse"
+						onClick={() => setIsCollapsed((value) => !value)}
+						aria-label={isCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
+						aria-pressed={isCollapsed}
+					>
+						<img
+							src={isCollapsed ? "/icons/chevron-right.svg" : "/icons/chevron-left.svg"}
+							alt=""
+							aria-hidden="true"
+							className="sidebar__collapse-icon"
+						/>
+					</button>
 				</div>
 
 				<nav className="sidebar__nav">
