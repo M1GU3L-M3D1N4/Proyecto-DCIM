@@ -11,57 +11,28 @@ const navigationSections = [
 			{
 				to: "/dashboard",
 				label: "Dashboard",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M4 4h6v6H4z" />
-						<path d="M14 4h6v6h-6z" />
-						<path d="M4 14h6v6H4z" />
-						<path d="M14 14h6v6h-6z" />
-					</svg>
-				),
+				icon: (<img src="public/icons/dashboard.svg" alt="Dashboard" />),
 			},
 			{
 				to: "/sites",
 				label: "Sitios",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M4 20h16" />
-						<path d="M7 20V8h10v12" />
-						<path d="M9 8V5h6v3" />
-					</svg>
+				icon: (<img src="public/icons/sites.svg" alt="Sitios" />
 				),
 			},
 			{
 				to: "/rooms",
 				label: "Salas",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M4 6h16v12H4z" />
-						<path d="M8 6V4h8v2" />
-						<path d="M8 12h8" />
-					</svg>
-				),
+				icon: (<img src="public/icons/rooms.svg" alt="Salas" />),
 			},
 			{
 				to: "/racks",
 				label: "Racks",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M5 6h14v5H5z" />
-						<path d="M5 13h14v5H5z" />
-					</svg>
-				),
+				icon: (<img src="public/icons/racks.svg" alt="Racks" />),
 			},
 			{
 				to: "/devices",
 				label: "Equipos",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M5 7h14v10H5z" />
-						<path d="M8 7V4h8v3" />
-						<path d="M9 11h6" />
-					</svg>
-				),
+				icon: (<img src="public/icons/devices.svg" alt="Equipos" />),
 			},
 		],
 	},
@@ -71,22 +42,12 @@ const navigationSections = [
 			{
 				to: "/vendors",
 				label: "Fabricantes",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="m12 3 8 4v10l-8 4-8-4V7z" />
-						<path d="M12 11V3" />
-					</svg>
-				),
+				icon: (<img src="public/icons/vendors.svg" alt="Fabricantes" />),
 			},
 			{
 				to: "/models",
 				label: "Modelos",
-				icon: (
-					<svg viewBox="0 0 24 24" aria-hidden="true">
-						<path d="m12 2 4 7-4 13-4-13z" />
-						<path d="M4 9h16" />
-					</svg>
-				),
+				icon: (<img src="public/icons/models.svg" alt="Modelos" />),
 			},
 		],
 	},
@@ -199,11 +160,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 				<div className="sidebar__brand">
 					<div className="sidebar__brand-main">
 						<div className="sidebar__logo">
-							<svg viewBox="0 0 24 24" className="sidebar__logo-icon" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-								<path d="M12 3 5 7v10l7 4 7-4V7l-7-4Z" />
-								<path d="M12 3v18" />
-								<path d="m5 7 7 4 7-4" />
-							</svg>
+							<img src="public/icons/dcim.svg" alt="Logo DCIM" className="sidebar__logo-icon"/>			
 						</div>
 						<div className="sidebar__brand-text">
 							<p className="sidebar__title">DCIM System</p>
@@ -212,16 +169,19 @@ function Sidebar({ theme = "light", mode = "static" }) {
 					</div>
 					{mode === "static" ? (
 						<button
-							type="button"
-							className="sidebar__collapse"
-							onClick={() => setIsCollapsed((value) => !value)}
-							aria-label={isCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
-							aria-pressed={isCollapsed}
-						>
-							<svg viewBox="0 0 24 24" aria-hidden="true">
-								{isCollapsed ? <path d="m9 18 6-6-6-6" /> : <path d="m15 18-6-6 6-6" />}
-							</svg>
-						</button>
+	type="button"
+	className="sidebar__collapse"
+	onClick={() => setIsCollapsed((value) => !value)}
+	aria-label={isCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
+	aria-pressed={isCollapsed}
+>
+	<img
+		src={isCollapsed ? "/icons/chevron-right.svg" : "/icons/chevron-left.svg"}
+		alt=""
+		aria-hidden="true"
+		className="sidebar__collapse-icon"
+	/>
+</button>
 					) : null}
 				</div>
 

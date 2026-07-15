@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchJson, putJson } from "../../lib/dcimApi";
+import { fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./RackDetail.css";
 
 export default function RackEditForm({ rack, onSave, onCancel }) {
+  const isEditing = Boolean(rack?.rack_id);
   const [formData, setFormData] = useState({
     room_id: rack.room_id || "",
     code: rack.code || "",
@@ -37,7 +38,11 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
         total_u: Number(formData.total_u),
       };
 
-      await putJson(`/api/racks/${rack.rack_id}`, payload);
+      if (isEditing) {
+        await putJson(`/api/racks/${rack.rack_id}`, payload);
+      } else {
+        await postJson('/api/racks', payload);
+      }
       onSave();
     } catch (err) {
       setError(err.message || "Error al guardar");
@@ -49,7 +54,7 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
   return (
     <form className="rack-detail-form" onSubmit={handleSubmit}>
       <fieldset className="rack-detail-fieldset">
-        <legend>Editar rack</legend>
+        <legend>{isEditing ? "Editar rack" : "Nuevo rack"}</legend>
 
         {error && <div className="rack-detail-error">{error}</div>}
 

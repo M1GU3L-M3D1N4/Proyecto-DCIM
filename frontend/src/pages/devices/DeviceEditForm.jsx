@@ -154,7 +154,7 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
         </div>
 
         <div className="form-group">
-          <label>Fecha de instalación</label>
+          <label>Fecha de instalacion/cambio</label>
           <input
             type="date"
             name="installed_at"

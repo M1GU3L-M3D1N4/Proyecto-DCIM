@@ -9,6 +9,27 @@ Pide solicitudes HTTP y devuelve respuestas JSON con los datos de los dispositiv
 
 const repository = require('../db/repository');  // Esta línea importa el módulo de repositorio de la base de datos, que contiene funciones para interactuar con la base de datos y realizar operaciones CRUD en los dispositivos.
 
+const handleDeviceWriteError = (res, error, defaultMessage) => {
+  if (error?.status) {
+    return res.status(error.status).json({ error: error.message });
+  }
+
+  if (error?.code === 'ER_DUP_ENTRY') {
+    const duplicateField = error?.sqlMessage?.includes('serial_number')
+      ? 'serial_number'
+      : error?.sqlMessage?.includes('asset_tag')
+        ? 'asset_tag'
+        : 'campo único';
+    return res.status(409).json({
+      error: `Valor duplicado en ${duplicateField}`,
+      details: 'El serial y asset tag deben ser únicos por equipo.',
+    });
+  }
+
+  console.error(defaultMessage, error);
+  return res.status(500).json({ error: defaultMessage, details: error.message });
+};
+
 // GET /api/devices esto significa que la función list se ejecutará cuando se haga una solicitud GET a la ruta /api/devices.
 exports.list = async (req, res) => {
   try {
@@ -86,19 +107,7 @@ exports.create = async (req, res) => {
     
     return res.status(201).json(newDevice);
   } catch (error) {
-    if (error?.code === 'ER_DUP_ENTRY') {
-      const duplicateField = error?.sqlMessage?.includes('serial_number')
-        ? 'serial_number'
-        : error?.sqlMessage?.includes('asset_tag')
-          ? 'asset_tag'
-          : 'campo único';
-      return res.status(409).json({
-        error: `Valor duplicado en ${duplicateField}`,
-        details: 'El serial y asset tag deben ser únicos por equipo.',
-      });
-    }
-    console.error('Error creating device:', error);
-    return res.status(500).json({ error: 'Error al crear dispositivo', details: error.message });
+    return handleDeviceWriteError(res, error, 'Error al crear dispositivo');
   }
 };
 /* La seccion anterior de codigo es la funcion create, que es un controlador que maneja la solicitud POST a la ruta /api/devices. Esta función obtiene los datos del nuevo dispositivo del cuerpo de la solicitud y valida que se proporcionen los campos requeridos (model_id y name).
@@ -136,19 +145,7 @@ exports.update = async (req, res) => {
     
     return res.json(updatedDevice);
   } catch (error) {
-    if (error?.code === 'ER_DUP_ENTRY') {
-      const duplicateField = error?.sqlMessage?.includes('serial_number')
-        ? 'serial_number'
-        : error?.sqlMessage?.includes('asset_tag')
-          ? 'asset_tag'
-          : 'campo único';
-      return res.status(409).json({
-        error: `Valor duplicado en ${duplicateField}`,
-        details: 'El serial y asset tag deben ser únicos por equipo.',
-      });
-    }
-    console.error('Error updating device:', error);
-    return res.status(500).json({ error: 'Error al actualizar dispositivo', details: error.message });
+    return handleDeviceWriteError(res, error, 'Error al actualizar dispositivo');
   }
 };
 /* esta sección de código es la función update, que es un controlador que maneja la solicitud PUT a la ruta /api/devices/:id. Esta función obtiene el ID del dispositivo de los parámetros de la solicitud y los datos actualizados del cuerpo de la solicitud.

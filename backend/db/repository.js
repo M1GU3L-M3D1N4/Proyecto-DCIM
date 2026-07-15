@@ -5,6 +5,27 @@
 
 const pool = require('./connection');
 
+const createHttpError = (status, message, code) => {
+  const error = new Error(message);
+  error.status = status;
+  error.code = code;
+  return error;
+};
+
+const buildUnitsRange = (uStart, uHeight) => {
+  const start = Number(uStart);
+  const height = Number(uHeight);
+
+  if (!Number.isInteger(start) || start < 1) {
+    throw createHttpError(400, 'u_start debe ser un entero mayor o igual a 1', 'INVALID_U_START');
+  }
+  if (!Number.isInteger(height) || height < 1) {
+    throw createHttpError(400, 'u_height debe ser un entero mayor o igual a 1', 'INVALID_U_HEIGHT');
+  }
+
+  return Array.from({ length: height }, (_, index) => start + index);
+};
+
 // ========== VENDORS ==========
 exports.getVendors = async () => {
   const [rows] = await pool.query('SELECT * FROM vendors');
@@ -136,10 +157,24 @@ exports.getRacks = async (filters = {}) => {
       r.*,
       rm.name AS room_name,
       rm.floor AS room_floor,
-      s.name AS site_name
+      s.name AS site_name,
+      COALESCE(occ.device_count, 0) AS device_count,
+      COALESCE(occ.used_units, 0) AS used_units,
+      CASE
+        WHEN r.total_u > 0 THEN ROUND((COALESCE(occ.used_units, 0) / r.total_u) * 100)
+        ELSE 0
+      END AS used_percent
     FROM racks r
     LEFT JOIN rooms rm ON rm.room_id = r.room_id
     LEFT JOIN sites s ON s.site_id = rm.site_id
+    LEFT JOIN (
+      SELECT
+        rack_id,
+        COUNT(*) AS used_units,
+        COUNT(DISTINCT device_id) AS device_count
+      FROM rack_unit_occupancy
+      GROUP BY rack_id
+    ) occ ON occ.rack_id = r.rack_id
     WHERE 1=1
   `;
   const params = [];
@@ -158,10 +193,24 @@ exports.getRackById = async (id) => {
         r.*,
         rm.name AS room_name,
         rm.floor AS room_floor,
-        s.name AS site_name
+        s.name AS site_name,
+        COALESCE(occ.device_count, 0) AS device_count,
+        COALESCE(occ.used_units, 0) AS used_units,
+        CASE
+          WHEN r.total_u > 0 THEN ROUND((COALESCE(occ.used_units, 0) / r.total_u) * 100)
+          ELSE 0
+        END AS used_percent
       FROM racks r
       LEFT JOIN rooms rm ON rm.room_id = r.room_id
       LEFT JOIN sites s ON s.site_id = rm.site_id
+      LEFT JOIN (
+        SELECT
+          rack_id,
+          COUNT(*) AS used_units,
+          COUNT(DISTINCT device_id) AS device_count
+        FROM rack_unit_occupancy
+        GROUP BY rack_id
+      ) occ ON occ.rack_id = r.rack_id
       WHERE r.rack_id = ?
     `,
     [id]
@@ -250,25 +299,192 @@ exports.getDeviceById = async (id) => {
 
 exports.createDevice = async (data) => {
   const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = data;
-  const [result] = await pool.query(
-    'INSERT INTO devices (model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [model_id, name, asset_tag, serial_number, rack_id || null, u_start || null, status || 'active', installed_at || null]
-  );
-  return exports.getDeviceById(result.insertId);
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [result] = await connection.query(
+      'INSERT INTO devices (model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [model_id, name, asset_tag, serial_number, rack_id || null, u_start || null, status || 'active', installed_at || null]
+    );
+
+    await exports.createRackOccupancy(result.insertId, connection);
+    await connection.commit();
+
+    return exports.getDeviceById(result.insertId);
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
 
 exports.updateDevice = async (id, data) => {
   const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = data;
-  await pool.query(
-    'UPDATE devices SET model_id = ?, name = ?, asset_tag = ?, serial_number = ?, rack_id = ?, u_start = ?, status = ?, installed_at = ? WHERE device_id = ?',
-    [model_id, name, asset_tag, serial_number, rack_id || null, u_start || null, status || 'active', installed_at || null, id]
-  );
-  return exports.getDeviceById(id);
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    await connection.query(
+      'UPDATE devices SET model_id = ?, name = ?, asset_tag = ?, serial_number = ?, rack_id = ?, u_start = ?, status = ?, installed_at = ? WHERE device_id = ?',
+      [model_id, name, asset_tag, serial_number, rack_id || null, u_start || null, status || 'active', installed_at || null, id]
+    );
+
+    await exports.updateRackOccupancy(id, connection);
+    await connection.commit();
+
+    return exports.getDeviceById(id);
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
 
 exports.deleteDevice = async (id) => {
-  await pool.query('DELETE FROM devices WHERE device_id = ?', [id]);
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    await exports.deleteRackOccupancy(id, connection);
+    await connection.query('DELETE FROM devices WHERE device_id = ?', [id]);
+    await connection.commit();
+    return true;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+exports.validateRackSpace = async (rackId, uStart, uHeight, options = {}) => {
+  const { excludeDeviceId = null, connection = pool } = options;
+
+  if (!rackId) {
+    throw createHttpError(400, 'rack_id es requerido para validar ocupación', 'RACK_REQUIRED');
+  }
+
+  const units = buildUnitsRange(uStart, uHeight);
+  const startUnit = units[0];
+  const endUnit = units[units.length - 1];
+
+  const [rackRows] = await connection.query('SELECT rack_id, total_u FROM racks WHERE rack_id = ? LIMIT 1', [rackId]);
+  if (!rackRows.length) {
+    throw createHttpError(404, 'Rack not found', 'RACK_NOT_FOUND');
+  }
+
+  const rack = rackRows[0];
+  if (endUnit > Number(rack.total_u)) {
+    throw createHttpError(409, 'El equipo sobrepasa el tamaño del rack', 'RACK_SPACE_EXCEEDED');
+  }
+
+  let conflictQuery = `
+    SELECT unit, device_id
+    FROM rack_unit_occupancy
+    WHERE rack_id = ?
+      AND unit BETWEEN ? AND ?
+  `;
+  const params = [rackId, startUnit, endUnit];
+
+  if (excludeDeviceId) {
+    conflictQuery += ' AND device_id <> ?';
+    params.push(excludeDeviceId);
+  }
+
+  const [conflicts] = await connection.query(conflictQuery, params);
+  if (conflicts.length > 0) {
+    throw createHttpError(409, 'Una o más unidades del rack ya están ocupadas', 'RACK_UNITS_CONFLICT');
+  }
+
+  return { rack, units };
+};
+
+exports.createRackOccupancy = async (deviceId, connection = pool) => {
+  const [rows] = await connection.query(
+    `
+      SELECT d.device_id, d.rack_id, d.u_start, COALESCE(m.u_height, 1) AS u_height
+      FROM devices d
+      LEFT JOIN device_models m ON m.model_id = d.model_id
+      WHERE d.device_id = ?
+      LIMIT 1
+    `,
+    [deviceId]
+  );
+
+  if (!rows.length) {
+    throw createHttpError(404, 'Device not found', 'DEVICE_NOT_FOUND');
+  }
+
+  const device = rows[0];
+
+  if (!device.rack_id && device.u_start == null) {
+    return [];
+  }
+
+  if (!device.rack_id || device.u_start == null) {
+    throw createHttpError(400, 'rack_id y u_start deben enviarse juntos para ubicar un equipo en rack', 'INVALID_RACK_POSITION');
+  }
+
+  const { units } = await exports.validateRackSpace(device.rack_id, device.u_start, device.u_height, {
+    connection,
+    excludeDeviceId: deviceId,
+  });
+
+  const values = units.map((unit) => [device.rack_id, unit, deviceId]);
+  if (values.length) {
+    await connection.query('INSERT INTO rack_unit_occupancy (rack_id, unit, device_id) VALUES ?', [values]);
+  }
+
+  return units;
+};
+
+exports.updateRackOccupancy = async (deviceId, connection = pool) => {
+  await exports.deleteRackOccupancy(deviceId, connection);
+  return exports.createRackOccupancy(deviceId, connection);
+};
+
+exports.deleteRackOccupancy = async (deviceId, connection = pool) => {
+  await connection.query('DELETE FROM rack_unit_occupancy WHERE device_id = ?', [deviceId]);
   return true;
+};
+
+exports.getUsedUnits = async (rackId) => {
+  const [rows] = await pool.query(
+    'SELECT COUNT(unit) AS used_units FROM rack_unit_occupancy WHERE rack_id = ?',
+    [rackId]
+  );
+  return rows[0]?.used_units || 0;
+};
+
+exports.getRackOccupancy = async (rackId) => {
+  const [rows] = await pool.query(
+    `
+      SELECT
+        r.rack_id,
+        COALESCE(occ.device_count, 0) AS device_count,
+        COALESCE(occ.used_units, 0) AS used_units,
+        CASE
+          WHEN r.total_u > 0 THEN ROUND((COALESCE(occ.used_units, 0) / r.total_u) * 100)
+          ELSE 0
+        END AS used_percent
+      FROM racks r
+      LEFT JOIN (
+        SELECT
+          rack_id,
+          COUNT(*) AS used_units,
+          COUNT(DISTINCT device_id) AS device_count
+        FROM rack_unit_occupancy
+        GROUP BY rack_id
+      ) occ ON occ.rack_id = r.rack_id
+      WHERE r.rack_id = ?
+      LIMIT 1
+    `,
+    [rackId]
+  );
+
+  return rows[0] || null;
 };
 
 // ========== OCCUPANCY ==========

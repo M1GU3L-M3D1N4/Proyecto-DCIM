@@ -5,24 +5,8 @@ exports.list = async (req, res) => {
   try {
     const { room_id } = req.query;
     const racks = await repository.getRacks(room_id ? { room_id } : {});
-    
-    // Enriquecer con conteo de dispositivos
-    const racksWithData = await Promise.all(
-      racks.map(async (rack) => {
-        const devices = await repository.getDevices({ rack_id: rack.rack_id });
-        const occupancy = await repository.getOccupancyByRackId(rack.rack_id);
-        const usedPercent = rack.total_u ? Math.round((occupancy.length / rack.total_u) * 100) : 0;
-        
-        return {
-          ...rack,
-          device_count: devices.length,
-          used_units: occupancy.length,
-          used_percent: usedPercent,
-        };
-      })
-    );
-    
-    return res.json(racksWithData);
+
+    return res.json(racks);
   } catch (error) {
     console.error('Error listing racks:', error);
     return res.status(500).json({ error: 'Error al cargar racks', details: error.message });
@@ -34,23 +18,15 @@ exports.getById = async (req, res) => {
   try {
     const rack = await repository.getRackById(req.params.id);
     if (!rack) return res.status(404).json({ error: 'Rack not found' });
-    
-    const devices = await repository.getDevices({ rack_id: rack.rack_id });
-    const occupancy = await repository.getOccupancyByRackId(rack.rack_id);
-    const usedPercent = rack.total_u ? Math.round((occupancy.length / rack.total_u) * 100) : 0;
-    
-    // Enriquecer con información de ubicación
-    const room = rack.room_id ? await repository.getRoomById(rack.room_id) : null;
-    const site = room ? await repository.getSiteById(room.site_id) : null;
-    
+
     return res.json({
       ...rack,
-      device_count: devices.length,
-      used_units: occupancy.length,
-      used_percent: usedPercent,
-      room_name: room?.name ?? 'Sin sala',
-      room_floor: room?.floor ?? 'N/D',
-      site_name: site?.name ?? 'Sin sitio',
+      room_name: rack.room_name ?? 'Sin sala',
+      room_floor: rack.room_floor ?? 'N/D',
+      site_name: rack.site_name ?? 'Sin sitio',
+      device_count: rack.device_count ?? 0,
+      used_units: rack.used_units ?? 0,
+      used_percent: rack.used_percent ?? 0,
     });
   } catch (error) {
     console.error('Error getting rack:', error);
@@ -97,15 +73,13 @@ exports.update = async (req, res) => {
     if (!room) return res.status(404).json({ error: 'Room no encontrado' });
     
     const updatedRack = await repository.updateRack(req.params.id, { room_id, code, total_u: total_u || 42 });
-    const devices = await repository.getDevices({ rack_id: updatedRack.rack_id });
-    const occupancy = await repository.getOccupancyByRackId(updatedRack.rack_id);
-    const usedPercent = updatedRack.total_u ? Math.round((occupancy.length / updatedRack.total_u) * 100) : 0;
+    const rackWithMetrics = await repository.getRackById(updatedRack.rack_id);
     
     return res.json({
-      ...updatedRack,
-      device_count: devices.length,
-      used_units: occupancy.length,
-      used_percent: usedPercent,
+      ...rackWithMetrics,
+      device_count: rackWithMetrics?.device_count ?? 0,
+      used_units: rackWithMetrics?.used_units ?? 0,
+      used_percent: rackWithMetrics?.used_percent ?? 0,
     });
   } catch (error) {
     console.error('Error updating rack:', error);
