@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import Pagination from "../../components/Pagination";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import RoomEditForm from "./RoomEditForm";
 import "./RoomsList.css";
-
-const ITEMS_PER_PAGE = 8;
 
 function RoomsList() {
   const [rooms, setRooms] = useState([]);
@@ -14,7 +11,6 @@ function RoomsList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
   const siteId = searchParams.get("site_id");
 
@@ -56,16 +52,9 @@ function RoomsList() {
     loadRooms();
   }, [siteId]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [siteId, rooms.length]);
-
   const totalRacks = rooms.reduce((sum, room) => sum + (room.racks_count || 0), 0);
   const occupiedRacks = rooms.reduce((sum, room) => sum + (room.occupied_racks || 0), 0);
   const availableRacks = Math.max(totalRacks - occupiedRacks, 0);
-  const totalPages = Math.max(1, Math.ceil(rooms.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedRooms = rooms.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <div className="rooms-page">
@@ -127,9 +116,8 @@ function RoomsList() {
               <div className="rooms-page__empty">Todavía no hay salas para mostrar.</div>
             ) : (
               <div className="rooms-grid">
-                {paginatedRooms.map((room) => {
+                {rooms.map((room) => {
                   const occupancy = room.racks_count ? Math.round((room.occupied_racks / room.racks_count) * 100) : 0;
-                  const racksUrl = `/racks?${buildQueryString({ room_id: room.room_id, room_name: room.name }).replace(/^\?/, "")}`;
 
                   return (
                     <article key={room.room_id} className="room-card">
@@ -165,8 +153,8 @@ function RoomsList() {
                       </div>
 
                       <div className="room-card__actions">
-                        <Link to={racksUrl} className="room-card__btn">Ver racks</Link>
-                        <Link to={racksUrl} className="room-card__icon-btn" aria-label={`Gestionar racks de ${room.name}`}>
+                        <Link to={`/racks?room_id=${room.room_id}`} className="room-card__btn">Ver racks</Link>
+                        <Link to={`/racks?room_id=${room.room_id}`} className="room-card__icon-btn" aria-label={`Gestionar racks de ${room.name}`}>
                           <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0 0-3l-.5-.5a2.1 2.1 0 0 0-3 0L4 16v4Z" />
                             <path d="M13.5 6.5 17.5 10.5" />
@@ -180,13 +168,6 @@ function RoomsList() {
                 })}
               </div>
             )}
-
-            <Pagination
-              totalItems={rooms.length}
-              itemsPerPage={ITEMS_PER_PAGE}
-              currentPage={safePage}
-              onPageChange={setCurrentPage}
-            />
           </div>
 
           {isEditing && editingRoom && (

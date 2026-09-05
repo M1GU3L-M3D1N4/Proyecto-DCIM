@@ -1,12 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import Pagination from "../../components/Pagination";
 import { deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import ModelEditForm from "./ModelEditForm";
 import "./ModelsList.css";
-
-const ITEMS_PER_PAGE = 8;
 
 function ModelsList() {
   const [models, setModels] = useState([]);
@@ -14,7 +11,6 @@ function ModelsList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingModel, setEditingModel] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const loadModels = async () => {
     setIsLoading(true);
@@ -54,15 +50,8 @@ function ModelsList() {
     loadModels();
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [models.length]);
-
   const totalVendors = new Set(models.map((model) => model.vendor_id)).size;
   const totalDevices = models.reduce((sum, model) => sum + (model.devices_count || 0), 0);
-  const totalPages = Math.max(1, Math.ceil(models.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedModels = models.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <div className="catalog-page">
@@ -101,7 +90,7 @@ function ModelsList() {
           </div>
 
           <div className="catalog-grid">
-            {paginatedModels.map((model) => (
+            {models.map((model) => (
               <article key={model.model_id} className="catalog-card">
                 <div>
                   <p className="catalog-card__eyebrow">Modelo</p>
@@ -124,13 +113,6 @@ function ModelsList() {
               </article>
             ))}
           </div>
-
-          <Pagination
-            totalItems={models.length}
-            itemsPerPage={ITEMS_PER_PAGE}
-            currentPage={safePage}
-            onPageChange={setCurrentPage}
-          />
 
           {isEditing && editingModel && (
             <div className="modal-overlay" onClick={() => setIsEditing(false)}>

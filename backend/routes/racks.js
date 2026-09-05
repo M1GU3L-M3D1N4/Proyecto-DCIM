@@ -16,7 +16,6 @@ const { authenticate } = require('../middlewares/auth');
 */
 
 router.get('/', controller.list);
-router.get('/:id/pdf', controller.exportPdf);
 router.get('/:id', controller.getById);
 router.post('/', authenticate, controller.create);
 router.put('/:id', authenticate, controller.update);

@@ -2,14 +2,6 @@ import { useEffect, useState } from "react";
 import { fetchJson, putJson, postJson } from "../../lib/dcimApi";
 import "./DeviceDetail.css";
 
-function formatDateForInput(value) {
-  if (!value) return "";
-  if (typeof value === "string" && value.includes("T")) {
-    return value.split("T")[0];
-  }
-  return value;
-}
-
 export default function DeviceEditForm({ device, isCreating, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     model_id: device.model_id || "",
@@ -19,7 +11,7 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
     rack_id: device.rack_id || "",
     u_start: device.u_start || "",
     status: device.status || "active",
-    installed_at: formatDateForInput(device.installed_at),
+    installed_at: device.installed_at || "",
   });
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -51,18 +43,11 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
     setIsSaving(true);
 
     try {
-      const normalizedAssetTag = formData.asset_tag?.trim() || null;
-      const normalizedSerial = formData.serial_number?.trim() || null;
-
       const payload = {
+        ...formData,
         model_id: Number(formData.model_id),
-        name: formData.name.trim(),
-        asset_tag: normalizedAssetTag,
-        serial_number: normalizedSerial,
         rack_id: formData.rack_id ? Number(formData.rack_id) : null,
         u_start: formData.u_start ? Number(formData.u_start) : null,
-        status: formData.status || "active",
-        installed_at: formData.installed_at || null,
       };
 
       if (isCreating) {

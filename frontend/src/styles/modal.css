@@ -9,10 +9,8 @@ esto afecta el comportamiento del modal cuando se muestra o se oculta. */
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: clamp(16px, 4vh, 40px) 16px 16px;
-  overflow-y: auto;
   z-index: 1000;
   animation: fadeIn 0.2s ease-in;
 }
@@ -40,8 +38,8 @@ es donde se muestran todos los formularios que se estan renderizando. */
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   padding: 32px;
   max-width: 500px;
-  width: min(90vw, 500px);
-  max-height: calc(100vh - clamp(32px, 8vh, 80px));
+  width: 90%;
+  max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
 }

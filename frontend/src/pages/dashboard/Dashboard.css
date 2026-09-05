@@ -1,500 +1,107 @@
+/*
+  Estilos del dashboard.
+  Aquí vive la composición visual de la pantalla principal: fondo, panel,
+  encabezado, tarjetas de métricas y ajustes responsive.
+*/
 .app-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.09), transparent 22%),
-    radial-gradient(circle at 15% 20%, rgba(20, 184, 166, 0.08), transparent 18%),
-    linear-gradient(180deg, #f7f9fc 0%, #eef4fb 100%);
-  color: #0f172a;
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 24%),
+    linear-gradient(180deg, #f7f9fc, #edf3fb);
+  position: relative;
 }
 
+/* En móvil el sidebar no se muestra como columna fija. */
 .app-shell__sidebar {
   display: none;
 }
 
+/* Contenedor general de la vista del dashboard. */
 .dashboard {
   min-height: 100vh;
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
+/* Panel central que agrupa todo el contenido visible de la página. */
 .dashboard__panel {
-  width: 100%;
-  min-height: calc(100vh - 2rem);
-  margin: 0;
-  padding: 1.25rem;
-  border: 1px solid #dbe5f1;
+  max-width: 76rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 1.5rem;
+  position: relative;
+  border: 1px solid rgba(219, 229, 241, 0.95);
   border-radius: 2rem;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
 }
 
-.dashboard__hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
-  gap: 1rem;
-  align-items: start;
-  margin-bottom: 1rem;
-}
-
-.dashboard__hero-copy {
-  display: grid;
-  gap: 0.75rem;
-}
-
+/* Etiqueta superior para dar contexto rápido al usuario. */
 .dashboard__badge {
   display: inline-flex;
   width: fit-content;
-  align-items: center;
-  padding: 0.45rem 0.85rem;
-  border: 1px solid #cfe0ff;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(37, 99, 235, 0.18);
   border-radius: 999px;
-  background: #f4f8ff;
+  background: var(--accent-soft);
   color: #1d4ed8;
-  font-size: 0.84rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+/* Bloque del título y la descripción principal. */
+.dashboard__heading {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Título grande que marca la jerarquía de la pantalla. */
 .dashboard__title {
   margin: 0;
-  font-size: clamp(2.15rem, 4.6vw, 3.2rem);
-  line-height: 0.85;
-  letter-spacing: -0.08em;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
   color: #0f172a;
 }
 
+/* Texto de apoyo con una explicación corta del estado general. */
 .dashboard__description {
-  max-width: 56rem;
+  max-width: 42rem;
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #64748b;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--text-muted);
 }
 
-.dashboard__hero-tools {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.dashboard__clock-card {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0.75rem 0.85rem;
-  border: 1px solid #dbe5f1;
-  border-radius: 0.8rem;
-  background: transparent;
-  box-shadow: none;
-}
-
-.dashboard__clock-card strong {
-  display: block;
-  font-size: 0.9rem;
-  line-height: 1.25;
-  color: #475569;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.dashboard__refresh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 3rem;
-  padding: 0 1.1rem;
-  border: 0;
-  border-radius: 0.95rem;
-  background: linear-gradient(135deg, #2f6bff, #1d4ed8);
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 800;
-  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.22);
-  cursor: pointer;
-}
-
-.dashboard__refresh:disabled {
-  opacity: 0.75;
-  cursor: wait;
-}
-
-.dashboard__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 1rem;
-}
-
-.dashboard__column {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
-
-.dashboard-card {
-  padding: 1rem;
-  border: 1px solid #dbe5f1;
-  border-radius: 1.3rem;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
-}
-
-.dashboard-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
-}
-
-.dashboard-card__eyebrow {
-  margin: 0 0 0.2rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #1d4ed8;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.dashboard-card__title {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #0f172a;
-}
-
-.dashboard-card__counter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 0.85rem;
-  font-weight: 800;
-}
-
-.dashboard-card--status,
-.dashboard-card--occupancy,
-.dashboard-card--table {
-  overflow: hidden;
-}
-
-.dashboard-card--total {
-  background: linear-gradient(180deg, #ffffff, #f8fbff);
-}
-
-.dashboard-total__body {
+/* Rejilla de métricas resumidas que se expande en desktop. */
+/* Grid de tarjetas de métricas.
+   Contiene `StatCard` componentes; en desktop se distribuye en 3 columnas.
+   Fuente de datos: `mockData.metrics` (prototipo). */
+.stats-grid {
   display: grid;
   gap: 1rem;
 }
 
-.dashboard-total__bar {
-  height: 0.9rem;
-  border-radius: 999px;
-  background: #e2e8f0;
-  overflow: hidden;
-}
-
-.dashboard-total__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(135deg, #2f6bff, #1d4ed8);
-}
-
-.dashboard-total__chips {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.dashboard-total__chips div {
-  padding: 0.85rem 0.9rem;
-  border: 1px solid #dbe5f1;
-  border-radius: 1rem;
-  background: #ffffff;
-}
-
-.dashboard-total__chips span {
-  display: block;
-  font-size: 0.78rem;
-  color: #64748b;
-}
-
-.dashboard-total__chips strong {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 1.1rem;
-  color: #0f172a;
-}
-
-.dashboard-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem;
-  padding: 0 0.75rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.dashboard-pill--danger {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.dashboard-pill--warning {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.dashboard-pill--success {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.dashboard-occupancy {
+/* Contenedor de dos columnas para estado de equipos y accesos rápidos. */
+/* Grid secundario: `StatusPanel` y `QuickAccess`.
+   En pantallas >=1024px se dispone en dos columnas de igual ancho. */
+.dashboard__grid {
   display: grid;
   gap: 1rem;
 }
 
-.dashboard-progress {
-  height: 0.95rem;
-  border-radius: 999px;
-  background: #e2e8f0;
-  overflow: hidden;
+/* En pantallas medianas y grandes, los paneles se organizan en dos columnas. */
+@media (min-width: 1024px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.dashboard-progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(135deg, #2f6bff, #1d4ed8);
-}
-
-.dashboard-progress--thin {
-  height: 0.68rem;
-}
-
-.dashboard-occupancy__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.dashboard-occupancy__grid div,
-.dashboard-mini-card,
-.dashboard-activity__card {
-  padding: 0.9rem;
-  border: 1px solid #dbe5f1;
-  border-radius: 1rem;
-  background: #ffffff;
-}
-
-.dashboard-occupancy__grid span,
-.dashboard-mini-card span,
-.dashboard-activity__card span {
-  display: block;
-  font-size: 0.78rem;
-  color: #64748b;
-}
-
-.dashboard-occupancy__grid strong,
-.dashboard-mini-card strong,
-.dashboard-activity__card strong {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 1.12rem;
-  color: #0f172a;
-}
-
-.dashboard-table-wrap {
-  overflow: auto;
-  border: 1px solid #dbe5f1;
-  border-radius: 1rem;
-}
-
-.dashboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 100%;
-  background: #ffffff;
-}
-
-.dashboard-table thead th {
-  padding: 0.8rem 0.85rem;
-  background: #f8fbff;
-  border-bottom: 1px solid #dbe5f1;
-  color: #475569;
-  font-size: 0.78rem;
-  text-align: left;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.dashboard-table tbody td {
-  padding: 0.85rem;
-  border-bottom: 1px solid #edf2f7;
-  vertical-align: top;
-  color: #0f172a;
-}
-
-.dashboard-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.dashboard-table tbody td strong,
-.dashboard-table tbody td span {
-  display: block;
-}
-
-.dashboard-table tbody td span {
-  margin-top: 0.15rem;
-  font-size: 0.78rem;
-  color: #64748b;
-}
-
-.dashboard-table__row--danger td {
-  background: #fff1f2;
-}
-
-.dashboard-table__empty {
-  padding: 1rem;
-  text-align: center;
-  color: #64748b;
-}
-
-.dashboard-bars {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.dashboard-bar-item {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.dashboard-bar-item__meta {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.dashboard-bar-item__meta strong {
-  color: #0f172a;
-}
-
-.dashboard-bar-item__meta span {
-  color: #64748b;
-  font-size: 0.85rem;
-}
-
-.dashboard-alerts {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.dashboard-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid transparent;
-}
-
-.dashboard-alert span {
-  flex-shrink: 0;
-  font-size: 0.95rem;
-  line-height: 1.2;
-}
-
-.dashboard-alert p {
-  margin: 0;
-  line-height: 1.55;
-}
-
-.dashboard-alert--critical {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-}
-
-.dashboard-alert--warning {
-  border-color: #fde68a;
-  background: #fffbeb;
-  color: #92400e;
-}
-
-.dashboard-alert--info {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-}
-
-.dashboard-activity {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.dashboard-activity--wide {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.dashboard-mini-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.dashboard-mini-card--active {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
-}
-
-.dashboard-mini-card--warning {
-  border-color: #fde68a;
-  background: #fffbeb;
-}
-
-.dashboard-mini-card--muted {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-}
-
-.dashboard-mini-card--danger {
-  border-color: #fecaca;
-  background: #fff1f2;
-}
-
-.dashboard-mini-card small {
-  display: block;
-  margin-top: 0.25rem;
-  color: #64748b;
-}
-
-.dashboard-note,
-.dashboard-mini-note,
-.dashboard-empty {
-  padding: 0.85rem 1rem;
-  border-radius: 1rem;
-  background: #f8fbff;
-  color: #64748b;
-  line-height: 1.55;
-}
-
-.dashboard-note {
-  margin-top: 0.75rem;
-}
-
-.dashboard-mini-note {
-  margin-top: 0.75rem;
-}
-
+/* En escritorio el dashboard convive con el sidebar y las métricas se muestran en columnas. */
 @media (min-width: 1024px) {
   .app-shell {
     display: flex;
@@ -506,72 +113,14 @@
 
   .dashboard {
     flex: 1;
-    padding: 1.5rem;
+    padding: 2rem;
   }
 
   .dashboard__panel {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 1180px) {
-  .dashboard__hero,
-  .dashboard__layout {
-    grid-template-columns: 1fr;
+    padding: 2rem;
   }
 
-  .dashboard__hero-tools {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-activity--wide {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .dashboard__panel {
-    border-radius: 1.5rem;
-  }
-
-  .dashboard-occupancy__grid,
-  .dashboard-activity,
-  .dashboard-mini-grid,
-  .dashboard-total__chips {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .dashboard {
-    padding: 0.75rem;
-  }
-
-  .dashboard__panel {
-    min-height: auto;
-    padding: 1rem;
-    border-radius: 1.25rem;
-  }
-
-  .dashboard__hero-tools,
-  .dashboard-occupancy__grid,
-  .dashboard-activity,
-  .dashboard-mini-grid,
-  .dashboard-total__chips {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-card__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .dashboard-bar-item__meta {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .dashboard-table {
-    min-width: 760px;
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

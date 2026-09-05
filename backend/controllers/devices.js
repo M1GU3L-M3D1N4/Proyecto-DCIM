@@ -33,12 +33,11 @@ const handleDeviceWriteError = (res, error, defaultMessage) => {
 // GET /api/devices esto significa que la función list se ejecutará cuando se haga una solicitud GET a la ruta /api/devices.
 exports.list = async (req, res) => {
   try {
-    const { rack_id, model_id, status, rack_status } = req.query;
+    const { rack_id, model_id, status } = req.query;
     const filters = {};
     if (rack_id) filters.rack_id = rack_id;
     if (model_id) filters.model_id = model_id;
     if (status) filters.status = status;
-    if (rack_status) filters.rack_status = rack_status;
     
     const devices = await repository.getDevices(filters);
     return res.json(devices);

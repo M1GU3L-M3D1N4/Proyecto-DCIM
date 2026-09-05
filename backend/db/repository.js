@@ -256,12 +256,6 @@ exports.getDevices = async (filters = {}) => {
     WHERE 1=1
   `;
   const params = [];
-  if (filters.rack_status === 'unassigned') {
-    query += ' AND d.rack_id IS NULL';
-  }
-  if (filters.rack_status === 'assigned') {
-    query += ' AND d.rack_id IS NOT NULL';
-  }
   if (filters.rack_id) {
     query += ' AND d.rack_id = ?';
     params.push(filters.rack_id);

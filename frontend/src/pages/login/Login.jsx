@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { postJson } from "../../lib/dcimApi";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "./Login.css";
 
 /**
@@ -122,7 +121,7 @@ function Login({ onLoginSuccess }) {
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
             {errors.password && <span className="form-error">{errors.password}</span>}

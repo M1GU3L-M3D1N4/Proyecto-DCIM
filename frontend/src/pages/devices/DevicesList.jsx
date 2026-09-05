@@ -2,12 +2,9 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/layout/Sidebar";
-import Pagination from "../../components/Pagination";
 import { buildQueryString, deleteJson, fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import DeviceEditForm from "./DeviceEditForm";
 import "./DevicesList.css";
-
-const ITEMS_PER_PAGE = 8;
 
 function DevicesList() {
   const [devices, setDevices] = useState([]);
@@ -15,19 +12,17 @@ function DevicesList() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
   const rackId = searchParams.get("rack_id");
   const modelId = searchParams.get("model_id");
   const status = searchParams.get("status");
-  const rackStatus = searchParams.get("rack_status") || "all";
 
   const loadDevices = async () => {
     try {
       setIsLoading(true);
       setError("");
       const data = await fetchJson(
-        `/api/devices${buildQueryString({ rack_id: rackId, model_id: modelId, status, rack_status: rackStatus === "all" ? null : rackStatus })}`,
+        `/api/devices${buildQueryString({ rack_id: rackId, model_id: modelId, status })}`,
         [],
       );
       setDevices(Array.isArray(data) ? data : []);
@@ -70,20 +65,11 @@ function DevicesList() {
 
   useEffect(() => {
     loadDevices();
-  }, [rackId, modelId, status, rackStatus]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [rackId, modelId, status, rackStatus, devices.length]);
+  }, [rackId, modelId, status]);
 
   const activeDevices = devices.filter((device) => device.status === "active").length;
   const maintenanceDevices = devices.filter((device) => device.status === "maintenance").length;
   const retiredDevices = devices.filter((device) => device.status === "retired").length;
-  const unassignedDevices = devices.filter((device) => !device.rack_id).length;
-  const totalPages = Math.max(1, Math.ceil(devices.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedDevices = devices.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
-  const rackViewLabel = rackStatus === "unassigned" ? "Sin rack" : "Todos";
 
   return (
     <div className="devices-page">
@@ -116,24 +102,9 @@ function DevicesList() {
             </div>
           </header>
 
-          <div className="devices-page__views">
-            <Link
-              to="/devices"
-              className={`devices-page__view ${rackStatus === "all" ? "devices-page__view--active" : ""}`}
-            >
-              Todos
-            </Link>
-            <Link
-              to="/devices?rack_status=unassigned"
-              className={`devices-page__view ${rackStatus === "unassigned" ? "devices-page__view--active" : ""}`}
-            >
-              Sin rack ({unassignedDevices})
-            </Link>
-          </div>
-
           {rackId || modelId || status ? (
             <div className="devices-page__note">
-              Filtros activos{rackId ? ` · rack ${rackId}` : ""}{modelId ? ` · modelo ${modelId}` : ""}{status ? ` · estado ${status}` : ""}{rackStatus !== "all" ? ` · vista ${rackViewLabel}` : ""}.
+              Filtros activos{rackId ? ` · rack ${rackId}` : ""}{modelId ? ` · modelo ${modelId}` : ""}{status ? ` · estado ${status}` : ""}.
             </div>
           ) : null}
 
@@ -153,10 +124,6 @@ function DevicesList() {
             <div className="devices-stat-card">
               <p className="devices-stat-card__label">Retirados</p>
               <p className="devices-stat-card__value">{retiredDevices}</p>
-            </div>
-            <div className="devices-stat-card">
-              <p className="devices-stat-card__label">Sin rack</p>
-              <p className="devices-stat-card__value">{unassignedDevices}</p>
             </div>
           </div>
 
@@ -178,7 +145,7 @@ function DevicesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedDevices.map((device) => (
+                  {devices.map((device) => (
                     <tr key={device.device_id}>
                       <td>
                         <div className="devices-table__primary">
@@ -221,13 +188,6 @@ function DevicesList() {
                 </tbody>
               </table>
             )}
-
-            <Pagination
-              totalItems={devices.length}
-              itemsPerPage={ITEMS_PER_PAGE}
-              currentPage={safePage}
-              onPageChange={setCurrentPage}
-            />
           </div>
 
           {isEditing && editingDevice && (
