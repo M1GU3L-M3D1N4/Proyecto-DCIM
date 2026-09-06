@@ -98,19 +98,6 @@ DCIM
     ├── Autenticación
     └── Base de datos MySQL
 ```
-
----
-
-# Guía rápida
-
-Si es la primera vez que trabajarás con el proyecto, comienza leyendo **GUIA_INSTALACION.md** para configurar correctamente el entorno.
-
-Si deseas comprender cómo está construido el sistema, revisa **DOCUMENTACION_COMPLETA.md**, donde se describe la arquitectura, la estructura de carpetas, el backend, el frontend y la base de datos.
-
-Si vas a trabajar en la interfaz de usuario, consulta **DOCUMENTACION_COMPONENTES.md**, que explica el funcionamiento de los componentes y la organización del frontend.
-
----
-
 # Flujo general del sistema
 
 ## Proceso de autenticación
