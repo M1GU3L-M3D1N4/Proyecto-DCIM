@@ -1,5 +1,8 @@
+// Repositorio para consultar y modificar las unidades ocupadas de cada rack.
 const repository = require('../db/repository');
 
+// GET /api/occupancy
+// Permite consultar toda la ocupación o limitarla a un rack concreto.
 exports.list = async (req, res) => {
   try {
     const { rack_id } = req.query;
@@ -10,6 +13,8 @@ exports.list = async (req, res) => {
   }
 };
 
+// GET /api/occupancy/:rackId
+// Devuelve el mapa de unidades ocupadas de un rack específico.
 exports.getByRack = async (req, res) => {
   try {
     const data = await repository.getOccupancyByRackId(req.params.rackId);
@@ -19,6 +24,8 @@ exports.getByRack = async (req, res) => {
   }
 };
 
+// POST /api/occupancy
+// Registra la relación entre un dispositivo y una unidad física del rack.
 exports.create = async (req, res) => {
   try {
     const { rack_id, unit, device_id } = req.body;
@@ -26,12 +33,14 @@ exports.create = async (req, res) => {
       return res.status(400).json({ error: 'rack_id, unit y device_id son requeridos' });
     }
 
+    // Validar ambas entidades antes de insertar evita referencias inválidas.
     const rack = await repository.getRackById(rack_id);
     if (!rack) return res.status(404).json({ error: 'Rack not found' });
 
     const device = await repository.getDeviceById(device_id);
     if (!device) return res.status(404).json({ error: 'Device not found' });
 
+    // La base de datos controla que una unidad no se ocupe dos veces.
     const created = await repository.createOccupancy({ rack_id, unit, device_id });
     return res.status(201).json(created);
   } catch (error) {
@@ -42,6 +51,8 @@ exports.create = async (req, res) => {
   }
 };
 
+// DELETE /api/occupancy/:rackId/:unit
+// Libera una unidad concreta del rack.
 exports.delete = async (req, res) => {
   try {
     const { rackId, unit } = req.params;

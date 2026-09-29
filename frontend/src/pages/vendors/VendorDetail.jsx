@@ -16,12 +16,14 @@ import "./VendorsList.css";
  */
 
 function VendorDetail() {
+	// El ID de la URL identifica el fabricante que debe consultarse.
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [vendor, setVendor] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isEditing, setIsEditing] = useState(false);
 
+	// Recarga el detalle después de cerrar el formulario de edición.
 	const loadVendor = async () => {
 		setIsLoading(true);
 		const data = await fetchJson(`/api/vendors/${id}`, null);
@@ -38,6 +40,7 @@ function VendorDetail() {
 		await loadVendor();
 	};
 
+	// Estados alternativos: carga, recurso inexistente, edición y detalle.
 	if (isLoading) {
 		return (
 			<div className="catalog-page">
@@ -82,6 +85,7 @@ function VendorDetail() {
 		);
 	}
 
+	// La API entrega los modelos asociados; se normaliza el fallback para el render.
 	const models = vendor.models || [];
 	const deviceCount = vendor.devices_count || 0;
 

@@ -1,11 +1,13 @@
+// Repositorio encargado de sitios y de las salas que pertenecen a cada sitio.
 const repository = require('../db/repository');
 
 // GET /api/sites
+// Lista sitios y agrega el número de salas asociadas a cada uno.
 exports.list = async (req, res) => {
   try {
     const sites = await repository.getSites();
     
-    // Enriquecer con conteo de salas
+    // El conteo se calcula desde la relación sitio -> salas para mantenerlo actualizado.
     const sitesWithCount = await Promise.all(
       sites.map(async (site) => {
         const rooms = await repository.getRooms({ site_id: site.site_id });
@@ -21,6 +23,7 @@ exports.list = async (req, res) => {
 };
 
 // GET /api/sites/:id
+// Obtiene un sitio individual junto con su cantidad de salas.
 exports.getById = async (req, res) => {
   try {
     const site = await repository.getSiteById(req.params.id);
@@ -35,6 +38,7 @@ exports.getById = async (req, res) => {
 };
 
 // POST /api/sites
+// Valida los campos obligatorios y registra un nuevo sitio.
 exports.create = async (req, res) => {
   try {
     const { name, city, address } = req.body;
@@ -55,6 +59,7 @@ exports.create = async (req, res) => {
 };
 
 // PUT /api/sites/:id
+// Actualiza los datos básicos del sitio y conserva el conteo de salas.
 exports.update = async (req, res) => {
   try {
     const { name, city, address } = req.body;
@@ -79,6 +84,7 @@ exports.update = async (req, res) => {
 };
 
 // DELETE /api/sites/:id
+// Elimina un sitio cuando existe y responde con 204 sin cuerpo.
 exports.delete = async (req, res) => {
   try {
     const site = await repository.getSiteById(req.params.id);

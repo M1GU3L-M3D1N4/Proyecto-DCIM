@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles/modal.css";
-// Importar las páginas principales de la aplicación  
+// Importar las páginas que se asocian a las rutas del sistema.
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
 import VendorsList from "./pages/vendors/VendorsList";
@@ -22,17 +22,19 @@ import DeviceDetail from "./pages/devices/DeviceDetail";
  * quede asociada a una URL clara y fácil de mantener.
  */
 function App() {
+	// El token local determina si el usuario puede entrar a las vistas protegidas.
   const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem("token")));
 
+	// Login utiliza este callback para actualizar la navegación sin recargar la página.
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
   };
-  // Sincronizar el estado de autenticación con cambios en el almacenamiento local (ej. logout en otra pestaña)
+  // Sincroniza la sesión cuando cambia el almacenamiento o se emite el evento interno de logout.
   useEffect(() => {
     const syncAuthState = () => {
       setIsAuthenticated(Boolean(localStorage.getItem("token")));
     };
-// Escuchar eventos de cambio de autenticación y almacenamiento para mantener el estado actualizado en todas las pestañas de la aplicación.
+  // Escuchar ambos eventos mantiene el estado actualizado entre componentes y pestañas.
     window.addEventListener("auth-change", syncAuthState);
     window.addEventListener("storage", syncAuthState);
 
@@ -41,11 +43,11 @@ function App() {
       window.removeEventListener("storage", syncAuthState);
     };
   }, []);
-// Función auxiliar para renderizar rutas protegidas: si el usuario no está autenticado, redirige al login.
+  // Redirige al login cualquier ruta que requiera una sesión válida.
   const renderProtectedRoute = (element) => {
     return isAuthenticated ? element : <Navigate to="/" replace />;
   };
-// Configuración de rutas utilizando React Router. Cada ruta está asociada a un componente específico que representa una pantalla de la aplicación. Las rutas protegidas utilizan la función `renderProtectedRoute` para asegurar que solo los usuarios autenticados puedan acceder a ellas.  
+  // React Router conecta cada URL con su pantalla y aplica protección según corresponda.
   return (
     <BrowserRouter>
       <Routes>

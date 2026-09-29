@@ -9,6 +9,7 @@ import "./SitesList.css";
 const ITEMS_PER_PAGE = 8;
 
 function SitesList() {
+	// Datos del listado, estado del modal y página seleccionada.
   const [sites, setSites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,6 +17,7 @@ function SitesList() {
   const [editingSite, setEditingSite] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Obtiene el catálogo y conserva un estado de carga separado de los datos.
   const loadSites = async () => {
     setIsLoading(true);
     setError("");
@@ -44,6 +46,7 @@ function SitesList() {
     await loadSites();
   };
 
+  // Confirma la eliminación y vuelve a consultar el catálogo.
   const handleDelete = async (site) => {
     if (!window.confirm(`¿Eliminar el sitio ${site.name}?`)) return;
     await deleteJson(`/api/sites/${site.site_id}`);
@@ -93,6 +96,7 @@ function SitesList() {
             </div>
           </header>
 
+          {/* Tabla principal con navegación hacia las salas de cada sitio. */}
           <div className="sites-page__card">
             {error ? (
               <div className="sites-page__empty">{error}</div>

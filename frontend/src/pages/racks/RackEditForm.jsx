@@ -3,6 +3,7 @@ import { fetchJson, postJson, putJson } from "../../lib/dcimApi";
 import "./RackDetail.css";
 
 export default function RackEditForm({ rack, onSave, onCancel }) {
+	// La presencia de rack_id determina si el formulario edita o crea.
   const isEditing = Boolean(rack?.rack_id);
   const [formData, setFormData] = useState({
     room_id: rack.room_id || "",
@@ -13,6 +14,7 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
   const [isSaving, setIsSaving] = useState(false);
   const [rooms, setRooms] = useState([]);
 
+  // Carga las salas para que el rack siempre quede asociado a una ubicación válida.
   useEffect(() => {
     const loadRooms = async () => {
       const data = await fetchJson("/api/rooms", []);
@@ -21,11 +23,13 @@ export default function RackEditForm({ rack, onSave, onCancel }) {
     loadRooms();
   }, []);
 
+  // Actualiza los valores escritos sin mutar el estado anterior.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Normaliza IDs y capacidad antes de enviarlos al backend.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

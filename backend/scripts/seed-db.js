@@ -1,10 +1,12 @@
 /**
- * Script de migración: carga datos desde mockData.json a MySQL
+ * Carga los datos iniciales de mockData.json en MySQL.
  * Uso: node backend/scripts/seed-db.js
  */
 
+// El script busca el archivo .env dentro de backend para compartir la configuración del servidor.
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 
+// Dependencias para leer el JSON, cifrar la contraseña y reutilizar la capa de datos.
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -15,7 +17,7 @@ async function seedDatabase() {
   try {
     console.log('🔄 Iniciando migración de datos...\n');
 
-    // Cargar mockData.json
+    // Leer el origen de datos antes de iniciar inserciones en la base de datos.
     const mockDataPath = path.join(__dirname, '..', 'data', 'mockData.json');
     const mockData = JSON.parse(fs.readFileSync(mockDataPath, 'utf8'));
 
@@ -25,11 +27,13 @@ async function seedDatabase() {
       process.exit(1);
     }
 
+    // La carga respeta las dependencias: primero usuario y catálogos, luego ubicaciones y equipos.
     // 0. Insertar usuario para autenticación
     console.log('👤 Insertando user de autenticación...');
     if (mockData.user?.email && mockData.user?.password) {
       const username = mockData.user.email.split('@')[0];
       const fullName = mockData.user.name || username;
+      // Nunca se guarda la contraseña original; se persiste únicamente su hash bcrypt.
       const passwordHash = await bcrypt.hash(mockData.user.password, 10);
 
       try {
@@ -39,6 +43,7 @@ async function seedDatabase() {
         );
         console.log(`  ✓ User: ${mockData.user.email}`);
       } catch (err) {
+        // Un usuario repetido no detiene la carga, pero otros errores se dejan visibles en consola.
         if (err.code === 'ER_DUP_ENTRY') {
           console.log(`  ⚠ User ya existe: ${mockData.user.email}`);
         } else {
@@ -50,7 +55,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 1. Insertar vendors
+    // 1. Insertar vendors: los modelos dependen de estos registros.
     console.log('📦 Insertando vendors...');
     if (mockData.vendors && mockData.vendors.length > 0) {
       for (const vendor of mockData.vendors) {
@@ -69,7 +74,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 2. Insertar device_models
+    // 2. Insertar device_models: cada modelo referencia un vendor_id.
     console.log('🖥️  Insertando device models...');
     if (mockData.device_models && mockData.device_models.length > 0) {
       for (const model of mockData.device_models) {
@@ -88,7 +93,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 3. Insertar sites
+    // 3. Insertar sites: nivel superior de la jerarquia fisica.
     console.log('🏢 Insertando sites...');
     if (mockData.sites && mockData.sites.length > 0) {
       for (const site of mockData.sites) {
@@ -108,7 +113,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 4. Insertar rooms
+    // 4. Insertar rooms: cada sala necesita que su sitio ya exista.
     console.log('🚪 Insertando rooms...');
     if (mockData.rooms && mockData.rooms.length > 0) {
       for (const room of mockData.rooms) {
@@ -126,7 +131,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 5. Insertar racks
+    // 5. Insertar racks: cada rack pertenece a una sala existente.
     console.log('📐 Insertando racks...');
     if (mockData.racks && mockData.racks.length > 0) {
       for (const rack of mockData.racks) {
@@ -146,7 +151,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 6. Insertar devices
+    // 6. Insertar devices: se crean despues de modelos y racks para resolver sus relaciones.
     console.log('⚙️  Insertando devices...');
     if (mockData.devices && mockData.devices.length > 0) {
       for (const device of mockData.devices) {
@@ -169,7 +174,7 @@ async function seedDatabase() {
     }
     console.log();
 
-    // 7. Insertar occupancy
+    // 7. Insertar occupancy: vincula cada dispositivo con las unidades fisicas del rack.
     console.log('📊 Insertando occupancy...');
     if (mockData.rack_unit_occupancy && mockData.rack_unit_occupancy.length > 0) {
       for (const occ of mockData.rack_unit_occupancy) {
@@ -193,6 +198,7 @@ async function seedDatabase() {
     }
     console.log();
 
+    // Se finaliza el proceso de forma explícita para devolver un código de éxito al sistema operativo.
     console.log('✅ Migración completada');
     process.exit(0);
   } catch (error) {
@@ -201,5 +207,5 @@ async function seedDatabase() {
   }
 }
 
-// Ejecutar migración
+// El archivo se ejecuta directamente como script y no expone una función pública.
 seedDatabase();

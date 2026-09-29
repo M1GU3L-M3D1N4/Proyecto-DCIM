@@ -13,6 +13,7 @@ const statusLabels = {
 };
 
 const sortDevicesByUnit = (items = []) => {
+  // Mantiene el orden físico del rack y deja al final posiciones desconocidas.
   return [...items].sort((a, b) => {
     const aUnit = Number(a?.u_start);
     const bUnit = Number(b?.u_start);
@@ -27,6 +28,7 @@ const sortDevicesByUnit = (items = []) => {
 };
 
 function RackDetail() {
+	// El ID de la URL identifica el rack y sus equipos instalados.
   const { id } = useParams();
   const navigate = useNavigate();
   const [rack, setRack] = useState(null);
@@ -36,6 +38,7 @@ function RackDetail() {
   const [isEditingDevice, setIsEditingDevice] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
 
+  // El detalle necesita dos consultas: métricas del rack e inventario asociado.
   const loadRack = async () => {
     setIsLoading(true);
     const data = await fetchJson(`/api/racks/${id}`, null);
@@ -65,6 +68,7 @@ function RackDetail() {
     await loadRack();
   };
 
+  // Renderiza estados alternativos antes de mostrar el detalle operativo.
   if (isLoading) {
     return (
       <div className="rack-detail-page">
@@ -109,6 +113,7 @@ function RackDetail() {
     );
   }
 
+  // Normaliza métricas y ordena equipos para la vista de ocupación.
   const usedUnits = rack.used_units ?? 0;
   const occupancy = rack.used_percent ?? 0;
   const siteName = rack.site_name ?? "Sin sitio";

@@ -4,6 +4,8 @@
   branding, formulario, estados de error y ajustes para móvil.
 */
 
+/* Las reglas siguientes organizan branding, formulario, errores y responsive. */
+
 /* Centra el contenido y construye el fondo atmosférico de la pantalla. */
 .login-container {
   display: flex;

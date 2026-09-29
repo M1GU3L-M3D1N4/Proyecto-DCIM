@@ -10,6 +10,7 @@ import "./DevicesList.css";
 const ITEMS_PER_PAGE = 8;
 
 function DevicesList() {
+	// Estados del inventario, filtros de URL, modal de edición y paginación.
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,6 +23,7 @@ function DevicesList() {
   const status = searchParams.get("status");
   const rackStatus = searchParams.get("rack_status") || "all";
 
+  // La consulta se reconstruye con los filtros activos de la URL.
   const loadDevices = async () => {
     try {
       setIsLoading(true);
@@ -38,6 +40,7 @@ function DevicesList() {
     }
   };
 
+  // Los filtros actuales se usan como valores iniciales al crear un equipo.
   const handleCreate = async () => {
     setEditingDevice({
       model_id: modelId || "",
@@ -62,6 +65,7 @@ function DevicesList() {
     await loadDevices();
   };
 
+  // La eliminación requiere confirmación y refresca el inventario al terminar.
   const handleDelete = async (device) => {
     if (!window.confirm(`¿Eliminar el equipo ${device.name}?`)) return;
     await deleteJson(`/api/devices/${device.device_id}`);
@@ -76,6 +80,7 @@ function DevicesList() {
     setCurrentPage(1);
   }, [rackId, modelId, status, rackStatus, devices.length]);
 
+  // Resumen del inventario y segmento visible de la página actual.
   const activeDevices = devices.filter((device) => device.status === "active").length;
   const maintenanceDevices = devices.filter((device) => device.status === "maintenance").length;
   const retiredDevices = devices.filter((device) => device.status === "retired").length;
@@ -160,6 +165,7 @@ function DevicesList() {
             </div>
           </div>
 
+          {/* Tabla de inventario; cada fila ofrece detalle, edición y eliminación. */}
           <div className="devices-page__card">
             {error ? <div className="devices-page__empty">{error}</div> : null}
             {isLoading ? (

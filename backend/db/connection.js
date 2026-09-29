@@ -17,19 +17,22 @@
  * - queueLimit: Cola ilimitada de espera
  */
 
-const mysql = require('mysql2/promise'); // Importar mysql2 con soporte para promesas
-require('dotenv').config(); // Cargar variables de entorno
+// mysql2/promise permite usar await en todas las consultas a la base de datos.
+const mysql = require('mysql2/promise');
+// Cargar la configuración local desde las variables definidas en el archivo .env.
+require('dotenv').config();
 
-// Crear pool de conexiones
+// El pool reutiliza conexiones y limita cuántas operaciones simultáneas llegan a MySQL.
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost', // Host de la BD desde variable de entorno
-  port: process.env.DB_PORT || 3306, // Puerto de la BD
-  user: process.env.DB_USER || 'root', // Usuario de MySQL
-  password: process.env.DB_PASSWORD || '', // Contraseña de MySQL
-  database: process.env.DB_NAME || 'dcim', // Nombre de la base de datos
-  waitForConnections: true, // Esperar si no hay conexiones disponibles
-  connectionLimit: 10, // Máximo número de conexiones en el pool
-  queueLimit: 0, // Cola ilimitada para esperar conexiones
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'dcim',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-module.exports = pool; // Exportar el pool para usarlo en repository.js
+// El repositorio importa este único pool para todas las operaciones del backend.
+module.exports = pool;

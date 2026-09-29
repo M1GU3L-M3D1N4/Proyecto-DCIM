@@ -1,5 +1,7 @@
 import "./Pagination.css";
 
+// Construye una ventana compacta de páginas y usa puntos suspensivos
+// cuando el listado tiene más páginas de las que conviene mostrar.
 function buildPageNumbers(totalPages, currentPage) {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -23,12 +25,15 @@ export default function Pagination({
   onPageChange,
   className = "",
 }) {
+  // Siempre existe al menos una página para evitar controles inválidos.
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
+  // Si todo cabe en una página, no se renderizan controles innecesarios.
   if (totalItems <= itemsPerPage) {
     return null;
   }
 
+  // Calcula el rango visible que se muestra junto a los botones.
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
   const pages = buildPageNumbers(totalPages, currentPage);
@@ -49,6 +54,7 @@ export default function Pagination({
           Anterior
         </button>
 
+        {/* Los puntos son texto informativo; los números siguen siendo botones navegables. */}
         {pages.map((page, index) => {
           if (page === "...") {
             return (

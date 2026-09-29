@@ -1,12 +1,16 @@
+// Consultas de racks, dispositivos instalados y su ubicación jerárquica.
 const repository = require('../db/repository');
+// Generación del informe PDF descargable desde el detalle del rack.
 const PDFDocument = require('pdfkit');
 
+// Traduce los estados internos de los dispositivos a etiquetas legibles en informes.
 const statusLabels = {
   active: 'Activo',
   maintenance: 'Mantenimiento',
   retired: 'Retirado',
 };
 
+// Ordena los equipos por unidad U y deja al final los que no tienen una posición válida.
 const sortDevicesByUnit = (items = []) => {
   return [...items].sort((a, b) => {
     const aUnit = Number(a?.u_start);
@@ -21,6 +25,7 @@ const sortDevicesByUnit = (items = []) => {
   });
 };
 
+// Convierte fechas de la base de datos al formato utilizado en el reporte.
 const formatDateForReport = (value) => {
   if (!value) return 'N/D';
   const date = new Date(value);
@@ -29,6 +34,7 @@ const formatDateForReport = (value) => {
 };
 
 // GET /api/racks
+// Lista racks y permite filtrar por la sala a la que pertenecen.
 exports.list = async (req, res) => {
   try {
     const { room_id } = req.query;
@@ -42,6 +48,7 @@ exports.list = async (req, res) => {
 };
 
 // GET /api/racks/:id
+// Devuelve el rack con nombres de ubicación y métricas normalizadas.
 exports.getById = async (req, res) => {
   try {
     const rack = await repository.getRackById(req.params.id);
@@ -63,11 +70,13 @@ exports.getById = async (req, res) => {
 };
 
 // GET /api/racks/:id/pdf
+// Construye y transmite un informe PDF con el inventario del rack.
 exports.exportPdf = async (req, res) => {
   try {
     const rack = await repository.getRackById(req.params.id);
     if (!rack) return res.status(404).json({ error: 'Rack not found' });
 
+    // Se ordenan los equipos antes de escribirlos para que el informe siga el orden físico del rack.
     const devices = await repository.getDevices({ rack_id: req.params.id });
     const sortedDevices = sortDevicesByUnit(devices);
 
@@ -79,6 +88,7 @@ exports.exportPdf = async (req, res) => {
     const doc = new PDFDocument({ size: 'A4', margin: 40 });
     doc.pipe(res);
 
+    // Este encabezado se reutiliza cada vez que el contenido continúa en una nueva página.
     const drawSectionHeader = () => {
       doc.fontSize(10).fillColor('#475569').text('Equipos instalados (ordenados por U ascendente)');
       doc.moveDown(0.3);
@@ -145,6 +155,7 @@ exports.exportPdf = async (req, res) => {
 };
 
 // POST /api/racks
+// Valida la sala propietaria y crea un rack con capacidad predeterminada de 42U.
 exports.create = async (req, res) => {
   try {
     const { room_id, code, total_u } = req.body;
@@ -168,6 +179,7 @@ exports.create = async (req, res) => {
 };
 
 // PUT /api/racks/:id
+// Actualiza el rack y devuelve nuevamente sus métricas calculadas.
 exports.update = async (req, res) => {
   try {
     const { room_id, code, total_u } = req.body;
@@ -201,6 +213,7 @@ exports.update = async (req, res) => {
 };
 
 // DELETE /api/racks/:id
+// Elimina un rack existente y responde sin contenido si la operación termina bien.
 exports.delete = async (req, res) => {
   try {
     const rack = await repository.getRackById(req.params.id);

@@ -10,6 +10,7 @@ import "./RacksList.css";
 const ITEMS_PER_PAGE = 8;
 
 function RacksList() {
+	// El listado puede filtrarse por la sala indicada en la URL.
   const [racks, setRacks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,6 +21,7 @@ function RacksList() {
   const roomId = searchParams.get("room_id");
   const roomNameParam = searchParams.get("room_name");
 
+  // Consulta racks y actualiza los estados de carga y error de la pantalla.
   const loadRacks = async () => {
     try {
       setIsLoading(true);
@@ -48,6 +50,7 @@ function RacksList() {
     await loadRacks();
   };
 
+  // Elimina un rack después de confirmar la acción con el usuario.
   const handleDelete = async (rack) => {
     if (!window.confirm(`¿Eliminar el rack ${rack.code}?`)) return;
     await deleteJson(`/api/racks/${rack.rack_id}`);
@@ -62,6 +65,7 @@ function RacksList() {
     setCurrentPage(1);
   }, [roomId, racks.length]);
 
+  // Métricas de capacidad y segmento visible para la página actual.
   const totalRacks = racks.length;
   const totalU = racks.reduce((sum, rack) => sum + (rack.total_u || 0), 0);
   const usedUnits = racks.reduce((sum, rack) => sum + (rack.used_units || 0), 0);
@@ -122,6 +126,7 @@ function RacksList() {
             </div>
           </div>
 
+          {/* Cada tarjeta resume capacidad, uso y acciones del rack. */}
           <div className="racks-page__card">
             {error ? <div className="racks-page__empty">{error}</div> : null}
             {isLoading ? (

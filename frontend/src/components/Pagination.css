@@ -1,3 +1,4 @@
+/* Barra inferior que resume el rango visible y agrupa la navegación. */
 .pagination {
   display: flex;
   align-items: center;
@@ -9,12 +10,14 @@
   background: #f8fbff;
 }
 
+/* Texto "Mostrando X-Y de Z". */
 .pagination__summary {
   margin: 0;
   color: #64748b;
   font-size: 0.9rem;
 }
 
+/* Contenedor flexible de botones y separadores de páginas. */
 .pagination__controls {
   display: flex;
   align-items: center;
@@ -22,6 +25,7 @@
   flex-wrap: wrap;
 }
 
+/* Estilo base compartido por navegación anterior, siguiente y páginas. */
 .pagination__btn {
   height: 2.1rem;
   min-width: 2.1rem;
@@ -35,27 +39,32 @@
   cursor: pointer;
 }
 
+/* Feedback visual para controles disponibles. */
 .pagination__btn:hover:not(:disabled) {
   border-color: #bfd2ef;
   background: #f8fbff;
 }
 
+/* Estados no disponibles al estar en el primer o último extremo. */
 .pagination__btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
+/* Página actualmente seleccionada. */
 .pagination__btn--active {
   border-color: #2f6bff;
   background: #2f6bff;
   color: #ffffff;
 }
 
+/* Separador visual cuando se omiten páginas intermedias. */
 .pagination__dots {
   color: #64748b;
   padding: 0 0.3rem;
 }
 
+/* En pantallas pequeñas, el resumen ocupa una línea propia. */
 @media (max-width: 640px) {
   .pagination {
     padding: 0.8rem;

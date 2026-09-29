@@ -1,30 +1,17 @@
-// Rutas para `sites` - endpoints para consultar sitios del datacenter.
+// Router de Express para los sitios físicos del datacenter.
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/sites');
+// Las modificaciones del catálogo requieren autenticación.
 const { authenticate } = require('../middlewares/auth');
 
-/*
-	Rutas `sites`
-
-	Propósito: exponer endpoints para consultar sitios del datacenter.
-	Notas:
-	- Actualmente los controladores devuelven 501 (placeholders).
-	- Cuando se implemente la lógica, estos endpoints deben devolver JSON
-		con las estructuras definidas en `backend/data/mockData.json`.
-
-	Ejemplos:
-	- GET /api/sites         -> [{ site_id, name, city, address }, ...]
-	- GET /api/sites/:id     -> { site_id, name, city, address }
-*/
-
-// Lista de sitios
+// Consultas públicas del listado y detalle de sitios.
 router.get('/', controller.list);
-
-// Detalle de sitio
 router.get('/:id', controller.getById);
+// Crear, actualizar y eliminar sitios requiere autenticación.
 router.post('/', authenticate, controller.create);
 router.put('/:id', authenticate, controller.update);
 router.delete('/:id', authenticate, controller.delete);
 
+// server.js monta este router bajo el prefijo /api/sites.
 module.exports = router;

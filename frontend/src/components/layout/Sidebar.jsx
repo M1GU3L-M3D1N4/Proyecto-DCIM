@@ -53,7 +53,6 @@ const navigationSections = [
 	},
 ];
 
-
 /**
  * Sidebar
  *
@@ -65,17 +64,22 @@ const navigationSections = [
  */
 
 function Sidebar({ theme = "light", mode = "static" }) {
+	// El drawer comienza abierto en modo estático y cerrado en modo móvil.
 	const [isDrawerOpen, setIsDrawerOpen] = useState(mode !== "drawer");
+	// El estado colapsado conserva solo los iconos de navegación.
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	// Datos del usuario mostrados en el footer del sidebar.
 	const [user, setUser] = useState(null);
 	const [isLoadingUser, setIsLoadingUser] = useState(true);
 	const [userError, setUserError] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		// Evita actualizar estado si el componente se desmonta mientras llega la respuesta.
 		let isMounted = true;
 
 		const loadUser = async () => {
+			// El token se reutiliza para consultar el perfil autenticado en el backend.
 			const token = localStorage.getItem("token");
 
 			if (!token) {
@@ -111,6 +115,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 			}
 		};
 
+		// La carga se ejecuta una sola vez al montar el sidebar.
 		loadUser();
 
 		return () => {
@@ -119,6 +124,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 	}, []);
 
 	const handleLogout = () => {
+		// Se limpian credenciales locales y se notifica al resto de la aplicación.
 		localStorage.removeItem("user");
 		localStorage.removeItem("token");
 		window.dispatchEvent(new Event("auth-change"));
@@ -127,6 +133,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 
 	return (
 		<>
+			{/* En modo drawer, este botón controla la apertura del menú lateral. */}
 			{mode === "drawer" ? (
 				<button
 					type="button"
@@ -140,6 +147,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 					<span />
 				</button>
 			) : null}
+			{/* El overlay permite cerrar el drawer al hacer clic fuera de él. */}
 			{mode === "drawer" && isDrawerOpen ? (
 				<button
 					type="button"
@@ -183,6 +191,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 					</button>
 				</div>
 
+				{/* Navegación agrupada por operación y catálogos de referencia. */}
 				<nav className="sidebar__nav">
 					{navigationSections.map((section) => (
 						<div key={section.title} className="sidebar__section">
@@ -211,6 +220,7 @@ function Sidebar({ theme = "light", mode = "static" }) {
 					))}
 				</nav>
 
+				{/* Footer con identidad del usuario y acción de cierre de sesión. */}
 				<div className="sidebar__footer">
 					<div className="sidebar__user">
 						<div className="sidebar__user-avatar">

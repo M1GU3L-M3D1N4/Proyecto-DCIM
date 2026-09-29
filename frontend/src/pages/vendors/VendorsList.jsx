@@ -17,6 +17,7 @@ const ITEMS_PER_PAGE = 8;
  * El componente utiliza el hook `useEffect` para cargar la lista de fabricantes al montarse, y el estado local para manejar la información de los fabricantes, el estado de carga y los errores.
  */
 function VendorsList() {
+	// Estados de datos, modal de edición y paginación del catálogo.
   const [vendors, setVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,6 +25,7 @@ function VendorsList() {
   const [editingVendor, setEditingVendor] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Recarga el listado después de entrar a la pantalla o guardar cambios.
   const loadVendors = async () => {
     setIsLoading(true);
     setError("");
@@ -37,6 +39,7 @@ function VendorsList() {
     }
   };
 
+  // Abrir el formulario sin identificador indica que se creará un fabricante.
   const handleCreate = async () => {
     setEditingVendor({ name: "", support_url: "" });
     setIsEditing(true);
@@ -52,6 +55,7 @@ function VendorsList() {
     await loadVendors();
   };
 
+  // La eliminación requiere confirmación y luego sincroniza el listado.
   const handleDelete = async (vendor) => {
     if (!window.confirm(`¿Eliminar el fabricante ${vendor.name}?`)) return;
     await deleteJson(`/api/vendors/${vendor.vendor_id}`);
@@ -66,6 +70,7 @@ function VendorsList() {
     setCurrentPage(1);
   }, [vendors.length]);
 
+  // Los contadores del encabezado se agregan a partir de los datos recibidos.
   const totalModels = vendors.reduce((sum, vendor) => sum + (vendor.models_count || 0), 0);
   const totalDevices = vendors.reduce((sum, vendor) => sum + (vendor.devices_count || 0), 0);
   const totalPages = Math.max(1, Math.ceil(vendors.length / ITEMS_PER_PAGE));
@@ -108,6 +113,7 @@ function VendorsList() {
             </div>
           </div>
 
+          {/* Cada tarjeta representa un fabricante y sus acciones CRUD. */}
           <div className="catalog-grid">
             {paginatedVendors.map((vendor) => (
               <article key={vendor.vendor_id} className="catalog-card">

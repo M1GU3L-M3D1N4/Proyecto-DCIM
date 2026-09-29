@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchJson, putJson } from "../../lib/dcimApi";
 
 export default function ModelEditForm({ model, onSave, onCancel }) {
+	// El formulario administra la relación del modelo con su fabricante.
   const [formData, setFormData] = useState({
     vendor_id: model.vendor_id || "",
     model_name: model.model_name || "",
@@ -12,6 +13,7 @@ export default function ModelEditForm({ model, onSave, onCancel }) {
   const [isSaving, setIsSaving] = useState(false);
   const [vendors, setVendors] = useState([]);
 
+  // El fabricante se carga para llenar el selector de relación.
   useEffect(() => {
     const loadVendors = async () => {
       const data = await fetchJson("/api/vendors", []);
@@ -20,11 +22,13 @@ export default function ModelEditForm({ model, onSave, onCancel }) {
     loadVendors();
   }, []);
 
+  // Actualiza cualquier campo del formulario mediante su atributo name.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Convierte los valores numéricos y guarda el modelo editado.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

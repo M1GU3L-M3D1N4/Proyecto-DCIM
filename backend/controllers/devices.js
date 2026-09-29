@@ -7,8 +7,10 @@ Cada constante y función está documentada con comentarios para explicar su pro
 Pide solicitudes HTTP y devuelve respuestas JSON con los datos de los dispositivos o mensajes de error según corresponda.
 */
 
-const repository = require('../db/repository');  // Esta línea importa el módulo de repositorio de la base de datos, que contiene funciones para interactuar con la base de datos y realizar operaciones CRUD en los dispositivos.
+// Repositorio con las consultas CRUD y las relaciones de los dispositivos.
+const repository = require('../db/repository');
 
+// Centraliza los errores de creación y actualización para mantener respuestas consistentes.
 const handleDeviceWriteError = (res, error, defaultMessage) => {
   if (error?.status) {
     return res.status(error.status).json({ error: error.message });
@@ -30,9 +32,11 @@ const handleDeviceWriteError = (res, error, defaultMessage) => {
   return res.status(500).json({ error: defaultMessage, details: error.message });
 };
 
-// GET /api/devices esto significa que la función list se ejecutará cuando se haga una solicitud GET a la ruta /api/devices.
+// GET /api/devices
+// Lista dispositivos aplicando únicamente los filtros recibidos en la consulta.
 exports.list = async (req, res) => {
   try {
+    // Se construye un objeto de filtros limpio para no enviar valores indefinidos al repositorio.
     const { rack_id, model_id, status, rack_status } = req.query;
     const filters = {};
     if (rack_id) filters.rack_id = rack_id;
@@ -56,12 +60,14 @@ Si ocurre un error durante el proceso, captura el error, lo registra en la conso
 
 
 
-// GET /api/devices/:id esto significa que la función getById se ejecutará cuando se haga una solicitud GET a la ruta /api/devices/:id, donde :id es un parámetro de ruta que representa el ID del dispositivo que se desea obtener.
+// GET /api/devices/:id
+// Devuelve el dispositivo y normaliza los nombres de sus relaciones para el cliente.
 exports.getById = async (req, res) => {
   try {
     const device = await repository.getDeviceById(req.params.id);
     if (!device) return res.status(404).json({ error: 'Device not found' });
 
+    // Los valores alternativos permiten mostrar el detalle aunque alguna relación sea nula.
     return res.json({
       ...device,
       model_name: device.model_name ?? 'Sin modelo',
@@ -83,7 +89,8 @@ Si el dispositivo se encuentra, devuelve los detalles del dispositivo en formato
 Si ocurre un error durante el proceso, captura el error, lo registra en la consola y devuelve una respuesta con un código de estado 500 y un mensaje de error en formato JSON.
 */
 
-// POST /api/devices esto significa que la función create se ejecutará cuando se haga una solicitud POST a la ruta /api/devices. Esta función se encarga de crear un nuevo dispositivo en la base de datos.
+// POST /api/devices
+// Valida el modelo relacionado y registra un nuevo dispositivo.
 exports.create = async (req, res) => {
   try {
     const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = req.body;
@@ -92,6 +99,7 @@ exports.create = async (req, res) => {
       return res.status(400).json({ error: 'model_id y name son requeridos' });
     }
     
+    // El modelo es obligatorio porque define el tipo y las características del equipo.
     const model = await repository.getModelById(model_id);
     if (!model) return res.status(404).json({ error: 'Model no encontrado' });
     
@@ -118,7 +126,8 @@ Si ocurre un error durante el proceso, captura el error y verifica si es un erro
 Si ocurre cualquier otro error, lo registra en la consola y devuelve una respuesta con un código de estado 500 y un mensaje de error en formato JSON.
 */
 
-// PUT /api/devices/:id esto significa que la función update se ejecutará cuando se haga una solicitud PUT a la ruta /api/devices/:id, donde :id es un parámetro de ruta que representa el ID del dispositivo que se desea actualizar. Esta función se encarga de actualizar un dispositivo existente en la base de datos.
+// PUT /api/devices/:id
+// Comprueba el dispositivo y su modelo antes de guardar los nuevos datos.
 exports.update = async (req, res) => {
   try {
     const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = req.body;
@@ -157,7 +166,8 @@ Si ocurre un error durante el proceso, captura el error y verifica si es un erro
 Si ocurre cualquier otro error, lo registra en la consola y devuelve una respuesta con un código de estado 500 y un mensaje de error en formato JSON.
 */
 
-// DELETE /api/devices/:id esto significa que la función delete se ejecutará cuando se haga una solicitud DELETE a la ruta /api/devices/:id, donde :id es un parámetro de ruta que representa el ID del dispositivo que se desea eliminar. Esta función se encarga de eliminar un dispositivo existente en la base de datos.
+// DELETE /api/devices/:id
+// Elimina un dispositivo después de comprobar que existe.
 exports.delete = async (req, res) => {
   try {
     const device = await repository.getDeviceById(req.params.id);

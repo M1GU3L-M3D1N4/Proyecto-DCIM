@@ -10,6 +10,7 @@ const statusLabels = {
 	retired: "Retirado",
 };
 
+// Clases visuales utilizadas por las alertas calculadas en el dashboard.
 const alertColors = {
 	critical: "dashboard-alert--critical",
 	warning: "dashboard-alert--warning",
@@ -36,11 +37,13 @@ const getDeviceDateValue = (device) => {
 };
 
 function Dashboard() {
+	// Colecciones base desde las que se calculan métricas y alertas.
 	const [sites, setSites] = useState([]);
 	const [racks, setRacks] = useState([]);
 	const [devices, setDevices] = useState([]);
 	const [currentTime, setCurrentTime] = useState(() => new Date());
 
+	// Actualiza el reloj mostrado en la cabecera cada segundo.
 	useEffect(() => {
 		const timer = window.setInterval(() => {
 			setCurrentTime(new Date());
@@ -49,6 +52,7 @@ function Dashboard() {
 		return () => window.clearInterval(timer);
 	}, []);
 
+	// Carga en paralelo los recursos necesarios para construir el resumen.
 	const loadDashboard = async () => {
 		const [sitesData, racksData, devicesData] = await Promise.all([
 			fetchJson("/api/sites", []),
@@ -62,10 +66,12 @@ function Dashboard() {
 		setCurrentTime(new Date());
 	};
 
+	// La información se solicita una vez al montar el dashboard.
 	useEffect(() => {
 		loadDashboard();
 	}, []);
 
+	// Métricas generales de equipos y capacidad física.
 	const activeCount = devices.filter((device) => device.status === "active").length;
 	const maintenanceCount = devices.filter((device) => device.status === "maintenance").length;
 	const retiredCount = devices.filter((device) => device.status === "retired").length;
@@ -79,6 +85,7 @@ function Dashboard() {
 	const topRacks = [...racks].sort((a, b) => Number(b.used_percent || 0) - Number(a.used_percent || 0)).slice(0, 5);
 	const highUsageRack = topRacks.find((rack) => Number(rack.used_percent || 0) >= 90) || topRacks[0];
 
+	// Agrupa equipos por fabricante para la distribución visual.
 	const vendorCounts = Object.values(
 		devices.reduce((accumulator, device) => {
 			const key = device.vendor_name || "Sin fabricante";
@@ -90,6 +97,7 @@ function Dashboard() {
 		}, {})
 	).sort((a, b) => b.count - a.count);
 
+	// Ordena los equipos por fecha de instalación para mostrar actividad reciente.
 	const latestDevices = [...devices]
 		.sort((a, b) => getDeviceDateValue(b) - getDeviceDateValue(a))
 		.slice(0, 5);
@@ -107,6 +115,7 @@ function Dashboard() {
 		{ label: "Equipo más reciente", value: latestDevices[0]?.name || "Sin datos" },
 	];
 
+	// Las alertas se derivan de umbrales operativos, no de datos separados.
 	const alerts = [];
 	if (highUsageRack && Number(highUsageRack.used_percent || 0) >= 90) {
 		alerts.push({ severity: "critical", text: `Rack ${highUsageRack.code} con ocupación del ${highUsageRack.used_percent}%.` });
@@ -132,6 +141,7 @@ function Dashboard() {
 			).sort((a, b) => b.count - a.count)[0]
 		: null;
 
+	// La vista combina navegación lateral, métricas, tablas y paneles de actividad.
 	return (
 		<div className="app-shell">
 			<div className="app-shell__sidebar">

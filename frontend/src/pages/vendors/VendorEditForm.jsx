@@ -2,6 +2,7 @@ import { useState } from "react";
 import { putJson } from "../../lib/dcimApi";
 
 export default function VendorEditForm({ vendor, onSave, onCancel }) {
+	// El formulario inicia sus campos con el fabricante seleccionado.
   const [formData, setFormData] = useState({
     name: vendor.name || "",
     support_url: vendor.support_url || "",
@@ -9,11 +10,13 @@ export default function VendorEditForm({ vendor, onSave, onCancel }) {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Actualiza únicamente el campo que cambió para conservar el resto del formulario.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Normaliza cadenas y envía la actualización al backend.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -63,6 +66,7 @@ export default function VendorEditForm({ vendor, onSave, onCancel }) {
           />
         </div>
 
+        {/* Mientras se guarda se deshabilita el submit para evitar duplicados. */}
         <div className="form-actions">
           <button type="submit" disabled={isSaving} className="form-submit">
             {isSaving ? "Guardando..." : "Guardar"}

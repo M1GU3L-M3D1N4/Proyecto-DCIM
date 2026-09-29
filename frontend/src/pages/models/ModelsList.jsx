@@ -9,6 +9,7 @@ import "./ModelsList.css";
 const ITEMS_PER_PAGE = 8;
 
 function ModelsList() {
+	// Estados del catálogo, formulario modal y paginación.
   const [models, setModels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,6 +17,7 @@ function ModelsList() {
   const [editingModel, setEditingModel] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Carga o recarga los modelos desde la API.
   const loadModels = async () => {
     setIsLoading(true);
     setError("");
@@ -44,6 +46,7 @@ function ModelsList() {
     await loadModels();
   };
 
+  // Elimina el modelo únicamente después de confirmarlo.
   const handleDelete = async (model) => {
     if (!window.confirm(`¿Eliminar el modelo ${model.model_name}?`)) return;
     await deleteJson(`/api/models/${model.model_id}`);
@@ -58,6 +61,7 @@ function ModelsList() {
     setCurrentPage(1);
   }, [models.length]);
 
+  // Métricas derivadas y segmento visible de la página actual.
   const totalVendors = new Set(models.map((model) => model.vendor_id)).size;
   const totalDevices = models.reduce((sum, model) => sum + (model.devices_count || 0), 0);
   const totalPages = Math.max(1, Math.ceil(models.length / ITEMS_PER_PAGE));
@@ -100,6 +104,7 @@ function ModelsList() {
             </div>
           </div>
 
+          {/* Las tarjetas exponen detalle, relación con fabricante y acciones CRUD. */}
           <div className="catalog-grid">
             {paginatedModels.map((model) => (
               <article key={model.model_id} className="catalog-card">

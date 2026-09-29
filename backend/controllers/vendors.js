@@ -1,10 +1,13 @@
+// Repositorio del catálogo de fabricantes, modelos y dispositivos asociados.
 const repository = require('../db/repository');
 
 // GET /api/vendors
+// Lista fabricantes y calcula sus totales de modelos y dispositivos.
 exports.list = async (req, res) => {
   try {
     const vendors = await repository.getVendors();
     
+    // Los totales se derivan de las relaciones fabricante -> modelos -> dispositivos.
     const vendorsWithData = await Promise.all(
       vendors.map(async (vendor) => {
         const models = await repository.getModels();
@@ -33,6 +36,7 @@ exports.list = async (req, res) => {
 };
 
 // GET /api/vendors/:id
+// Devuelve el fabricante con sus modelos y el total de equipos relacionados.
 exports.getById = async (req, res) => {
   try {
     const vendor = await repository.getVendorById(req.params.id);
@@ -48,7 +52,7 @@ exports.getById = async (req, res) => {
       })
     )).reduce((a, b) => a + b, 0);
     
-    // Enriquecer modelos con información completa
+    // Añadir el nombre del fabricante facilita el consumo del catálogo en el cliente.
     const enrichedModels = vendorModels.map(model => ({
       ...model,
       vendor_name: vendor.name,
@@ -67,6 +71,7 @@ exports.getById = async (req, res) => {
 };
 
 // POST /api/vendors
+// Crea un fabricante y devuelve sus contadores iniciales en cero.
 exports.create = async (req, res) => {
   try {
     const { name, support_url } = req.body;
@@ -87,6 +92,7 @@ exports.create = async (req, res) => {
 };
 
 // PUT /api/vendors/:id
+// Actualiza el fabricante y recalcula los contadores de sus relaciones.
 exports.update = async (req, res) => {
   try {
     const { name, support_url } = req.body;
@@ -124,6 +130,7 @@ exports.update = async (req, res) => {
 };
 
 // DELETE /api/vendors/:id
+// Elimina un fabricante existente y no devuelve cuerpo en caso de éxito.
 exports.delete = async (req, res) => {
   try {
     const vendor = await repository.getVendorById(req.params.id);

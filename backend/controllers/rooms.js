@@ -1,12 +1,14 @@
+// Repositorio de salas y de los racks que determinan su estado operativo.
 const repository = require('../db/repository');
 
 // GET /api/rooms
+// Lista salas y calcula cuántos racks tienen ocupación.
 exports.list = async (req, res) => {
   try {
     const { site_id } = req.query;
     const rooms = await repository.getRooms(site_id ? { site_id } : {});
     
-    // Enriquecer con conteo de racks y ocupación
+    // Enriquecer cada sala con conteos y un estado derivado de sus racks.
     const roomsWithData = await Promise.all(
       rooms.map(async (room) => {
         const racks = await repository.getRacks({ room_id: room.room_id });
@@ -17,6 +19,7 @@ exports.list = async (req, res) => {
           })
         )).reduce((a, b) => a + b, 0);
         
+        // Una sala sin racks o sin racks ocupados está disponible; si todos están ocupados, está llena.
         const status = racks.length === 0 ? 'Disponible' : occupiedRacksCount === 0 ? 'Disponible' : occupiedRacksCount >= racks.length ? 'Llena' : 'Operativa';
         
         return {
@@ -36,6 +39,7 @@ exports.list = async (req, res) => {
 };
 
 // GET /api/rooms/:id
+// Obtiene el detalle de una sala usando el mismo cálculo de estado que el listado.
 exports.getById = async (req, res) => {
   try {
     const room = await repository.getRoomById(req.params.id);
@@ -64,6 +68,7 @@ exports.getById = async (req, res) => {
 };
 
 // POST /api/rooms
+// Comprueba el sitio padre antes de crear la sala.
 exports.create = async (req, res) => {
   try {
     const { site_id, name, floor } = req.body;
@@ -84,6 +89,7 @@ exports.create = async (req, res) => {
 };
 
 // PUT /api/rooms/:id
+// Actualiza la sala y reconstruye sus métricas para mantener consistente la respuesta.
 exports.update = async (req, res) => {
   try {
     const { site_id, name, floor } = req.body;
@@ -122,6 +128,7 @@ exports.update = async (req, res) => {
 };
 
 // DELETE /api/rooms/:id
+// Elimina una sala existente después de verificar que el ID sea válido.
 exports.delete = async (req, res) => {
   try {
     const room = await repository.getRoomById(req.params.id);

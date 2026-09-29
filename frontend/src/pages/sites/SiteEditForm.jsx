@@ -3,6 +3,7 @@ import { putJson, postJson } from "../../lib/dcimApi";
 import "./SitesList.css";
 
 export default function SiteEditForm({ site, onSave, onCancel }) {
+	// El mismo formulario sirve para crear un sitio o editar uno existente.
   const [formData, setFormData] = useState({
     name: site.name || "",
     city: site.city || "",
@@ -11,11 +12,13 @@ export default function SiteEditForm({ site, onSave, onCancel }) {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Mantiene sincronizado el estado controlado de cada input.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Decide entre POST y PUT según exista el identificador del sitio.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -82,6 +85,7 @@ export default function SiteEditForm({ site, onSave, onCancel }) {
           />
         </div>
 
+        {/* Las acciones permiten guardar o cerrar el modal sin persistir cambios. */}
         <div className="form-actions">
           <button type="submit" className="form-submit">
             Guardar

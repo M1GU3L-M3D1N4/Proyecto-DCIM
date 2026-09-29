@@ -1,8 +1,11 @@
+// Acceso a las consultas de modelos, fabricantes y dispositivos relacionados.
 const repository = require('../db/repository');
 
 // GET /api/models
+// Devuelve el catálogo de modelos y agrega datos calculados para la interfaz.
 exports.list = async (req, res) => {
   try {
+    // El filtro por fabricante se aplica después de obtener el catálogo.
     const { vendor_id } = req.query;
     let models = await repository.getModels();
     
@@ -10,6 +13,7 @@ exports.list = async (req, res) => {
       models = models.filter((m) => m.vendor_id === parseInt(vendor_id));
     }
     
+    // Cada modelo se enriquece con el nombre del fabricante y el total de equipos.
     const response = await Promise.all(
       models.map(async (model) => {
         const vendor = await repository.getVendorById(model.vendor_id);
@@ -31,15 +35,17 @@ exports.list = async (req, res) => {
 };
 
 // GET /api/models/:id
+// Obtiene un modelo junto con sus equipos y la ubicación de cada uno.
 exports.getById = async (req, res) => {
   try {
     const model = await repository.getModelById(req.params.id);
     if (!model) return res.status(404).json({ error: 'Model not found' });
     
+    // Se cargan las relaciones necesarias para construir una respuesta útil al cliente.
     const vendor = await repository.getVendorById(model.vendor_id);
     const devices = await repository.getDevices({ model_id: model.model_id });
     
-    // Enriquecer equipos con información de ubicación
+    // Enriquecer cada equipo recorriendo la jerarquía rack -> sala -> sitio.
     const enrichedDevices = await Promise.all(
       devices.map(async (device) => {
         const rack = device.rack_id ? await repository.getRackById(device.rack_id) : null;
@@ -69,6 +75,7 @@ exports.getById = async (req, res) => {
 };
 
 // POST /api/models
+// Valida las relaciones y crea un nuevo modelo de dispositivo.
 exports.create = async (req, res) => {
   try {
     const { vendor_id, model_name, device_type, u_height } = req.body;
@@ -77,6 +84,7 @@ exports.create = async (req, res) => {
       return res.status(400).json({ error: 'vendor_id y model_name son requeridos' });
     }
     
+    // No se permite crear un modelo asociado a un fabricante inexistente.
     const vendor = await repository.getVendorById(vendor_id);
     if (!vendor) return res.status(404).json({ error: 'Vendor no encontrado' });
     
@@ -99,6 +107,7 @@ exports.create = async (req, res) => {
 };
 
 // PUT /api/models/:id
+// Actualiza los datos del modelo y recalcula el total de equipos asociados.
 exports.update = async (req, res) => {
   try {
     const { vendor_id, model_name, device_type, u_height } = req.body;
@@ -134,6 +143,7 @@ exports.update = async (req, res) => {
 };
 
 // DELETE /api/models/:id
+// Elimina un modelo existente después de verificar que pueda localizarse.
 exports.delete = async (req, res) => {
   try {
     const model = await repository.getModelById(req.params.id);

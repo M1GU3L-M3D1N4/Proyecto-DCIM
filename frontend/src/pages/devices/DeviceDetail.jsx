@@ -6,12 +6,14 @@ import DeviceEditForm from "./DeviceEditForm";
 import "./DeviceDetail.css";
 
 function DeviceDetail() {
+	// El parámetro de ruta identifica el equipo que se consulta.
   const { id } = useParams();
   const navigate = useNavigate();
   const [device, setDevice] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
+  // Recarga el detalle después de guardar una edición.
   const loadDevice = async () => {
     setIsLoading(true);
     const data = await fetchJson(`/api/devices/${id}`, null);
@@ -28,6 +30,7 @@ function DeviceDetail() {
     await loadDevice();
   };
 
+  // Estados de carga, recurso inexistente, edición y visualización final.
   if (isLoading) {
     return (
       <div className="device-detail-page">
@@ -72,6 +75,7 @@ function DeviceDetail() {
     );
   }
 
+  // Valores alternativos para relaciones que pueden ser nulas.
   const rackCode = device.rack_code ?? "Sin rack";
   const roomName = device.room_name ?? "Sin sala";
   const siteName = device.site_name ?? "Sin sitio";

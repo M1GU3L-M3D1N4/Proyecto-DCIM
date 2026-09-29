@@ -9,6 +9,7 @@ import "./RoomsList.css";
 const ITEMS_PER_PAGE = 8;
 
 function RoomsList() {
+	// La lista puede limitarse al sitio recibido como parámetro de consulta.
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,6 +19,7 @@ function RoomsList() {
   const [searchParams] = useSearchParams();
   const siteId = searchParams.get("site_id");
 
+  // Recarga salas cuando cambia el filtro de sitio o se guarda una edición.
   const loadRooms = async () => {
     try {
       setIsLoading(true);
@@ -46,6 +48,7 @@ function RoomsList() {
     await loadRooms();
   };
 
+  // La eliminación se confirma antes de llamar al endpoint.
   const handleDelete = async (room) => {
     if (!window.confirm(`¿Eliminar la sala ${room.name}?`)) return;
     await deleteJson(`/api/rooms/${room.room_id}`);
@@ -60,6 +63,7 @@ function RoomsList() {
     setCurrentPage(1);
   }, [siteId, rooms.length]);
 
+  // Métricas derivadas de racks totales, ocupados y disponibles.
   const totalRacks = rooms.reduce((sum, room) => sum + (room.racks_count || 0), 0);
   const occupiedRacks = rooms.reduce((sum, room) => sum + (room.occupied_racks || 0), 0);
   const availableRacks = Math.max(totalRacks - occupiedRacks, 0);
@@ -119,6 +123,7 @@ function RoomsList() {
             </div>
           </div>
 
+          {/* Cada tarjeta enlaza al listado de racks filtrado por sala. */}
           <div className="rooms-page__card">
             {error ? <div className="rooms-page__note">{error}. Se muestran datos de ejemplo.</div> : null}
             {isLoading ? (

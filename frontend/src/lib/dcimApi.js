@@ -1,12 +1,12 @@
 export function buildQueryString(params = {}) {
   const searchParams = new URLSearchParams();
-// Solo agregamos parámetros que tengan un valor definido y no vacío
+  // Solo se agregan parámetros definidos para evitar URLs con filtros vacíos.
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       searchParams.set(key, value);
     }
   });
-// Construimos la cadena de consulta a partir de los parámetros válidos
+  // URLSearchParams se encarga de codificar correctamente los valores.
   const query = searchParams.toString();
   return query ? `?${query}` : "";
 }
@@ -14,15 +14,16 @@ export function buildQueryString(params = {}) {
 // Solo se incluyen parámetros que tengan un valor definido y no vacío, lo que evita agregar claves con valores vacíos a la URL.
 export async function fetchJson(path, fallback = undefined) {
   try {
-    const token = localStorage.getItem("token"); // Obtener el token de autenticación del almacenamiento local
+    // Todas las peticiones reutilizan el token guardado después del login.
+    const token = localStorage.getItem("token");
     const response = await fetch(path, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }); // Realizar la solicitud fetch con el token en el encabezado si está disponible
+    });
     if (!response.ok) {
       if (fallback !== undefined) return fallback;
       throw new Error(`HTTP ${response.status}`);
     }
-    // Intentar parsear la respuesta como JSON, si falla se devuelve null
+    // El contrato de la API para estos endpoints es una respuesta JSON.
     return await response.json();
   } catch (error) {
     if (fallback !== undefined) return fallback;
@@ -33,12 +34,13 @@ export async function fetchJson(path, fallback = undefined) {
 // Si la respuesta no es exitosa (status no OK), se lanza un error con el código HTTP
 // Si ocurre cualquier error durante la solicitud o el parseo, se devuelve un valor de fallback si se proporciona, o se lanza el error.
 export async function postJson(path, body) {
+  // Helper para crear recursos enviando un cuerpo JSON.
   const token = localStorage.getItem("token");
   const response = await fetch(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}), // Agregar el token al encabezado si está disponible
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -55,6 +57,7 @@ export async function postJson(path, body) {
 // El token de autenticación se incluye en el encabezado si está disponible
 // Si la respuesta no es exitosa, se lanza un error con el mensaje proporcionado por el servidor o el código HTTP 
 export async function putJson(path, body) {
+  // Helper para actualizar recursos existentes.
   const token = localStorage.getItem("token");
   const response = await fetch(path, {
     method: "PUT",
@@ -78,6 +81,7 @@ export async function putJson(path, body) {
 // El token de autenticación se incluye en el encabezado si está disponible
 // Si la respuesta no es exitosa, se lanza un error con el mensaje proporcionado por el servidor o el código HTTP 
 export async function deleteJson(path) {
+  // Helper para eliminar recursos y normalizar la respuesta exitosa.
   const token = localStorage.getItem("token");
   const response = await fetch(path, {
     method: "DELETE",

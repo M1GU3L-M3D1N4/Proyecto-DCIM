@@ -3,6 +3,7 @@ import { fetchJson, putJson, postJson } from "../../lib/dcimApi";
 import "./DeviceDetail.css";
 
 function formatDateForInput(value) {
+  // Convierte fechas ISO de la API al formato que acepta un input date.
   if (!value) return "";
   if (typeof value === "string" && value.includes("T")) {
     return value.split("T")[0];
@@ -11,6 +12,7 @@ function formatDateForInput(value) {
 }
 
 export default function DeviceEditForm({ device, isCreating, onSave, onCancel }) {
+	// Estado controlado del equipo y opciones de sus relaciones.
   const [formData, setFormData] = useState({
     model_id: device.model_id || "",
     name: device.name || "",
@@ -26,6 +28,7 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
   const [models, setModels] = useState([]);
   const [racks, setRacks] = useState([]);
 
+  // Modelo y rack se cargan en paralelo para llenar los selectores.
   useEffect(() => {
     const loadOptions = async () => {
       const [modelsResponse, racksResponse] = await Promise.all([
@@ -40,11 +43,13 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
     loadOptions();
   }, []);
 
+  // Conserva todos los campos mientras actualiza solo el que se editó.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Normaliza campos opcionales y decide entre crear o actualizar el equipo.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -178,6 +183,7 @@ export default function DeviceEditForm({ device, isCreating, onSave, onCancel })
           />
         </div>
 
+        {/* El botón refleja el estado de guardado para evitar envíos repetidos. */}
         <div className="form-actions">
           <button type="submit" disabled={isSaving} className="form-submit">
             {isSaving ? "Guardando..." : "Guardar"}

@@ -7,6 +7,7 @@ import DeviceEditForm from "../devices/DeviceEditForm";
 import "./ModelsList.css";
 
 const sortDevicesByUnit = (items = []) => {
+	// Orden físico para mostrar primero los equipos ubicados en U inferiores.
 	return [...items].sort((a, b) => {
 		const aUnit = Number(a?.u_start);
 		const bUnit = Number(b?.u_start);
@@ -21,6 +22,7 @@ const sortDevicesByUnit = (items = []) => {
 };
 
 function ModelDetail() {
+	// El parámetro de ruta define el modelo consultado.
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [model, setModel] = useState(null);
@@ -29,6 +31,7 @@ function ModelDetail() {
 	const [isEditingDevice, setIsEditingDevice] = useState(false);
 	const [editingDevice, setEditingDevice] = useState(null);
 
+	// Carga el detalle y se reutiliza después de editar un equipo o modelo.
 	const loadModel = async () => {
 		setIsLoading(true);
 		const data = await fetchJson(`/api/models/${id}`, null);
@@ -56,6 +59,7 @@ function ModelDetail() {
 		await loadModel();
 	};
 
+	// Estados de carga, recurso inexistente, edición y detalle completo.
 	if (isLoading) {
 		return (
 			<div className="catalog-page">
@@ -100,6 +104,7 @@ function ModelDetail() {
 		);
 	}
 
+	// Normaliza relaciones y ordena equipos antes de construir la tabla.
 	const vendorName = model.vendor_name || "Sin fabricante";
 	const devicesCount = model.devices_count || 0;
 	const sortedDevices = sortDevicesByUnit(model.devices || []);

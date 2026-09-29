@@ -3,6 +3,7 @@ import { fetchJson, putJson, postJson } from "../../lib/dcimApi";
 import "./RoomsList.css";
 
 export default function RoomEditForm({ room, siteId, onSave, onCancel }) {
+	// Inicializa la sala usando su sitio actual o el filtro heredado de la URL.
   const [formData, setFormData] = useState({
     site_id: room.site_id || siteId || "",
     name: room.name || "",
@@ -12,6 +13,7 @@ export default function RoomEditForm({ room, siteId, onSave, onCancel }) {
   const [isSaving, setIsSaving] = useState(false);
   const [sites, setSites] = useState([]);
 
+  // El selector necesita cargar los sitios disponibles antes de guardar.
   useEffect(() => {
     const loadSites = async () => {
       const data = await fetchJson("/api/sites", []);
@@ -20,11 +22,13 @@ export default function RoomEditForm({ room, siteId, onSave, onCancel }) {
     loadSites();
   }, []);
 
+  // Gestiona los campos controlados del formulario.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Convierte el sitio a número y elige POST o PUT según el modo.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

@@ -5,8 +5,10 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
+  // Los artefactos generados por Vite no forman parte del código fuente que se analiza.
   globalIgnores(['dist']),
   {
+    // Estas reglas se aplican a todos los módulos JavaScript y JSX del frontend.
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,

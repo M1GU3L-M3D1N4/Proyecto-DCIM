@@ -3,8 +3,10 @@
  * Abstrae operaciones CRUD y agregaciones.
  */
 
+// Pool compartido que ejecuta las consultas y administra las conexiones MySQL.
 const pool = require('./connection');
 
+// Crea errores con código HTTP para que los controladores puedan responder adecuadamente.
 const createHttpError = (status, message, code) => {
   const error = new Error(message);
   error.status = status;
@@ -12,6 +14,7 @@ const createHttpError = (status, message, code) => {
   return error;
 };
 
+// Convierte la posición inicial y la altura del equipo en todas las unidades que ocupará.
 const buildUnitsRange = (uStart, uHeight) => {
   const start = Number(uStart);
   const height = Number(uHeight);
@@ -27,6 +30,7 @@ const buildUnitsRange = (uStart, uHeight) => {
 };
 
 // ========== VENDORS ==========
+// Operaciones del catálogo de fabricantes.
 exports.getVendors = async () => {
   const [rows] = await pool.query('SELECT * FROM vendors');
   return rows;
@@ -55,6 +59,7 @@ exports.deleteVendor = async (id) => {
 };
 
 // ========== DEVICE MODELS ==========
+// Operaciones de modelos; cada modelo pertenece a un fabricante.
 exports.getModels = async () => {
   const [rows] = await pool.query('SELECT * FROM device_models');
   return rows;
@@ -89,6 +94,7 @@ exports.deleteModel = async (id) => {
 };
 
 // ========== SITES ==========
+// Operaciones de sitios físicos donde se ubica la infraestructura.
 exports.getSites = async () => {
   const [rows] = await pool.query('SELECT * FROM sites');
   return rows;
@@ -117,9 +123,11 @@ exports.deleteSite = async (id) => {
 };
 
 // ========== ROOMS ==========
+// Operaciones de salas, filtrables por el sitio al que pertenecen.
 exports.getRooms = async (filters = {}) => {
   let query = 'SELECT * FROM rooms';
   const params = [];
+  // El filtro se añade junto con su parámetro para mantener la consulta parametrizada.
   if (filters.site_id) {
     query += ' WHERE site_id = ?';
     params.push(filters.site_id);
@@ -151,6 +159,7 @@ exports.deleteRoom = async (id) => {
 };
 
 // ========== RACKS ==========
+// Consultas de racks con ubicación y métricas de ocupación calculadas en SQL.
 exports.getRacks = async (filters = {}) => {
   let query = `
     SELECT
@@ -178,6 +187,7 @@ exports.getRacks = async (filters = {}) => {
     WHERE 1=1
   `;
   const params = [];
+  // La subconsulta agrupa ocupaciones para evitar recalcularlas en el controlador.
   if (filters.room_id) {
     query += ' AND r.room_id = ?';
     params.push(filters.room_id);
@@ -218,6 +228,7 @@ exports.getRackById = async (id) => {
   return rows[0] || null;
 };
 
+// Las operaciones de escritura devuelven el registro creado o actualizado para el cliente.
 exports.createRack = async (data) => {
   const { room_id, code, total_u } = data;
   const [result] = await pool.query('INSERT INTO racks (room_id, code, total_u) VALUES (?, ?, ?)', [room_id, code, total_u || 42]);
@@ -236,6 +247,7 @@ exports.deleteRack = async (id) => {
 };
 
 // ========== DEVICES ==========
+// Consultas de dispositivos con sus relaciones de modelo, fabricante y ubicación.
 exports.getDevices = async (filters = {}) => {
   let query = `
     SELECT
@@ -256,6 +268,7 @@ exports.getDevices = async (filters = {}) => {
     WHERE 1=1
   `;
   const params = [];
+  // Los filtros opcionales se agregan de forma incremental y usan placeholders de MySQL.
   if (filters.rack_status === 'unassigned') {
     query += ' AND d.rack_id IS NULL';
   }
@@ -305,6 +318,7 @@ exports.getDeviceById = async (id) => {
 
 exports.createDevice = async (data) => {
   const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = data;
+  // Crear el dispositivo y sus ocupaciones es una sola operación atómica.
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -314,11 +328,13 @@ exports.createDevice = async (data) => {
       [model_id, name, asset_tag, serial_number, rack_id || null, u_start || null, status || 'active', installed_at || null]
     );
 
+    // La ocupación se genera a partir del rack, posición U y altura del modelo.
     await exports.createRackOccupancy(result.insertId, connection);
     await connection.commit();
 
     return exports.getDeviceById(result.insertId);
   } catch (error) {
+    // Si falla cualquiera de los pasos, se deshace también la inserción del dispositivo.
     await connection.rollback();
     throw error;
   } finally {
@@ -328,6 +344,7 @@ exports.createDevice = async (data) => {
 
 exports.updateDevice = async (id, data) => {
   const { model_id, name, asset_tag, serial_number, rack_id, u_start, status, installed_at } = data;
+  // Actualizar la posición puede liberar unidades antiguas y reservar otras nuevas.
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -353,6 +370,7 @@ exports.deleteDevice = async (id) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
+    // Primero se eliminan las ocupaciones para respetar las relaciones de la base de datos.
     await exports.deleteRackOccupancy(id, connection);
     await connection.query('DELETE FROM devices WHERE device_id = ?', [id]);
     await connection.commit();
@@ -372,6 +390,7 @@ exports.validateRackSpace = async (rackId, uStart, uHeight, options = {}) => {
     throw createHttpError(400, 'rack_id es requerido para validar ocupación', 'RACK_REQUIRED');
   }
 
+  // Se valida el rango completo antes de insertar cualquier unidad ocupada.
   const units = buildUnitsRange(uStart, uHeight);
   const startUnit = units[0];
   const endUnit = units[units.length - 1];
@@ -394,6 +413,7 @@ exports.validateRackSpace = async (rackId, uStart, uHeight, options = {}) => {
   `;
   const params = [rackId, startUnit, endUnit];
 
+  // Al actualizar un equipo, sus propias unidades se excluyen temporalmente del conflicto.
   if (excludeDeviceId) {
     conflictQuery += ' AND device_id <> ?';
     params.push(excludeDeviceId);
@@ -425,6 +445,7 @@ exports.createRackOccupancy = async (deviceId, connection = pool) => {
 
   const device = rows[0];
 
+  // Un dispositivo puede existir sin estar instalado; en ese caso no se crea ocupación.
   if (!device.rack_id && device.u_start == null) {
     return [];
   }
@@ -433,6 +454,7 @@ exports.createRackOccupancy = async (deviceId, connection = pool) => {
     throw createHttpError(400, 'rack_id y u_start deben enviarse juntos para ubicar un equipo en rack', 'INVALID_RACK_POSITION');
   }
 
+  // La altura proviene del modelo y puede ocupar varias unidades consecutivas.
   const { units } = await exports.validateRackSpace(device.rack_id, device.u_start, device.u_height, {
     connection,
     excludeDeviceId: deviceId,
@@ -447,6 +469,7 @@ exports.createRackOccupancy = async (deviceId, connection = pool) => {
 };
 
 exports.updateRackOccupancy = async (deviceId, connection = pool) => {
+  // Recalcular consiste en borrar la posición anterior y crear la nueva.
   await exports.deleteRackOccupancy(deviceId, connection);
   return exports.createRackOccupancy(deviceId, connection);
 };
@@ -494,6 +517,7 @@ exports.getRackOccupancy = async (rackId) => {
 };
 
 // ========== OCCUPANCY ==========
+// Operaciones directas sobre el mapa de unidades ocupadas de los racks.
 exports.getOccupancy = async (filters = {}) => {
   let query = 'SELECT * FROM rack_unit_occupancy';
   const params = [];
@@ -530,6 +554,7 @@ exports.deleteOccupancyByRackAndUnit = async (rackId, unit) => {
 };
 
 // ========== UTILIDADES ==========
+// Comprueba que el pool pueda obtener una conexión y ejecutar una consulta sencilla.
 exports.testConnection = async () => {
   try {
     const connection = await pool.getConnection();
@@ -542,6 +567,7 @@ exports.testConnection = async () => {
 };
 
 // ========== USERS ==========
+// Consultas de autenticación; getUserById omite el hash de la contraseña por seguridad.
 exports.getUserByEmail = async (email) => {
   const [rows] = await pool.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
   return rows[0] || null;
